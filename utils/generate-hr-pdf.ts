@@ -132,8 +132,8 @@ export const generateHRPdf = async (contribuyente: Contribuyente) => {
   doc.setFontSize(4.5);
   doc.text("ZONA/URBANA / ZONA RURAL", 80, 105, { align: "center" });
   doc.setFontSize(5);
-  doc.text("VALOR DEL PREDIO", 122, 102, { align: "right" });
-  doc.text("AFECTO S/.", 122, 105, { align: "right" });
+  doc.text("VALOR DEL PREDIO", 132, 102, { align: "center" });
+  doc.text("AFECTO S/.", 132, 105, { align: "center" });
 
   // Add property data
   doc.setFont("helvetica", "normal");
@@ -148,7 +148,7 @@ export const generateHRPdf = async (contribuyente: Contribuyente) => {
 
     doc.text("(50.000%)", 114, yPos, { align: "right" });
     doc.setFontSize(5);
-    doc.text(predio.valorPredio.toFixed(2), 122, yPos, { align: "right" });
+    doc.text(predio.valorPredio.toFixed(2), 132, yPos, { align: "center" });
   });
 
   // Base imponible with adjusted spacing
@@ -218,16 +218,16 @@ export const generateHRPdf = async (contribuyente: Contribuyente) => {
   doc.setFont("helvetica", "bold");
 
   // Draw boxes for totals with reduced height
-  doc.rect(90, 172, 55, 5); // IMPUESTO ANUAL
-  doc.rect(90, 177, 55, 5); // GASTOS DE EMISION
-  doc.rect(90, 182, 55, 5); // TOTAL IMPORTE ANUAL
+  doc.rect(90, 164, 55, 5); // IMPUESTO ANUAL
+  doc.rect(90, 169, 55, 5); // GASTOS DE EMISION
+  doc.rect(90, 174, 55, 5); // TOTAL IMPORTE ANUAL
 
-  doc.text("IMPUESTO ANUAL CON REDONDEO", 92, 175);
-  doc.text("30.90", 142, 175, { align: "right" });
-  doc.text("GASTOS DE EMISION(S/)", 92, 180);
-  doc.text("7.90", 142, 180, { align: "right" });
-  doc.text("TOTAL IMPORTE ANUAL (S/)", 92, 185);
-  doc.text("38.80", 142, 185, { align: "right" });
+  doc.text("IMPUESTO ANUAL CON REDONDEO", 92, 167);
+  doc.text("30.90", 142, 167, { align: "right" });
+  doc.text("GASTOS DE EMISION(S/)", 92, 172);
+  doc.text("7.90", 142, 172, { align: "right" });
+  doc.text("TOTAL IMPORTE ANUAL (S/)", 92, 177);
+  doc.text("38.80", 142, 177, { align: "right" });
 
   // Payment quotas section with minimal spacing
   doc.text("MONTOS A PAGAR CON OPCION EN CUOTAS(S/)", 16, 190);
