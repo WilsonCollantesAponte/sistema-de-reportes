@@ -23,6 +23,26 @@ import { testData } from "@/data/test-data";
 import { generateHRPdf } from "@/utils/generate-hr-pdf";
 
 export default function ReportGenerator() {
+  const handleGenerateReport = async (
+    type: string,
+    contribuyente: (typeof testData)[0]["contribuyente"]
+  ) => {
+    if (type === "HR") {
+      const result = await generateHRPdf(contribuyente);
+      if (result.success) {
+        const downloadInfoUrl = `/descarga-completada?path=${encodeURIComponent(
+          result.downloadPath!
+        )}&file=${encodeURIComponent(result.fileName!)}`;
+        window.open(downloadInfoUrl, "_blank");
+      } else {
+        window.alert(
+          "No se pudo generar el reporte. Por favor, inténtelo de nuevo."
+        );
+      }
+    }
+    // Other report types will be implemented later
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <div className="border-b">
@@ -200,12 +220,9 @@ export default function ReportGenerator() {
                               size="sm"
                               variant="outline"
                               className="px-2 py-1 text-xs"
-                              onClick={() => {
-                                if (report === "HR") {
-                                  generateHRPdf(item.contribuyente);
-                                }
-                                // Other report types will be implemented later
-                              }}
+                              onClick={() =>
+                                handleGenerateReport(report, item.contribuyente)
+                              }
                             >
                               {report}
                             </Button>

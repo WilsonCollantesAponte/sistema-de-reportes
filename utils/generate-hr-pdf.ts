@@ -280,7 +280,19 @@ export const generateHRPdf = async (contribuyente: Contribuyente) => {
   doc.text("043198", 145, 208, { align: "right" });
 
   // Save the PDF
-  doc.save(`HR-${contribuyente.codigo}.pdf`);
+  try {
+    // Save the PDF with a specific name
+    const fileName = `HR-${contribuyente.codigo}.pdf`;
+    doc.save(fileName);
+
+    // Get the actual downloads path from the browser
+    const downloadPath = `Descargas/${fileName}`;
+
+    return { success: true, fileName, downloadPath };
+  } catch (err) {
+    console.error("Error saving file:", err);
+    return { success: false };
+  }
 };
 
 // Helper function to load image
