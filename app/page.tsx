@@ -19,28 +19,58 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Link from "next/link";
-import { testData } from "@/data/test-data";
-import { generateHRPdf } from "@/utils/generate-hr-pdf";
+import { useState } from "react";
 
 export default function ReportGenerator() {
-  const handleGenerateReport = async (
-    type: string,
-    contribuyente: (typeof testData)[0]["contribuyente"]
-  ) => {
-    if (type === "HR") {
-      const result = await generateHRPdf(contribuyente);
-      if (result.success) {
-        const downloadInfoUrl = `/descarga-completada?path=${encodeURIComponent(
-          result.downloadPath!
-        )}&file=${encodeURIComponent(result.fileName!)}`;
-        window.open(downloadInfoUrl, "_blank");
-      } else {
-        window.alert(
-          "No se pudo generar el reporte. Por favor, inténtelo de nuevo."
-        );
+  const [isLoading, setIsLoading] = useState(false);
+  const [lugar, setLugar] = useState("");
+  const [inicio, setInicio] = useState("0");
+  const [fin, setFin] = useState("250");
+  const [contributors, setContributors] = useState([]);
+
+  const handleGenerateReport = async (codigo: string) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/generate-hr-report?codigo=${codigo}`);
+      if (!response.ok) {
+        throw new Error("Failed to generate report");
       }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      a.download = `HR_Report_${codigo}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error generating report:", error);
+      window.alert(
+        "No se pudo generar el reporte. Por favor, inténtelo de nuevo."
+      );
+    } finally {
+      setIsLoading(false);
     }
-    // Other report types will be implemented later
+  };
+
+  const fetchContributors = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        `/api/contributors?lugar=${lugar}&inicio=${inicio}&fin=${fin}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch contributors");
+      }
+      const data = await response.json();
+      setContributors(data);
+    } catch (error) {
+      console.error("Error fetching contributors:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -95,7 +125,10 @@ export default function ReportGenerator() {
                   <label className="text-xs font-medium block mb-1">
                     Distrito:
                   </label>
-                  <Select defaultValue="VEINTISEIS">
+                  <Select
+                    defaultValue="VEINTISEIS"
+                    onValueChange={(value) => setLugar(value)}
+                  >
                     <SelectTrigger className="h-8 text-sm">
                       <SelectValue />
                     </SelectTrigger>
@@ -126,8 +159,18 @@ export default function ReportGenerator() {
                     Lugar:
                   </label>
                   <div className="flex gap-2">
-                    <Input type="text" className="h-8 text-sm" />
-                    <Button className="h-8 px-3 text-sm">Buscar</Button>
+                    <Input
+                      type="text"
+                      className="h-8 text-sm"
+                      value={lugar}
+                      onChange={(e) => setLugar(e.target.value)}
+                    />
+                    <Button
+                      className="h-8 px-3 text-sm"
+                      onClick={fetchContributors}
+                    >
+                      Buscar
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -144,7 +187,8 @@ export default function ReportGenerator() {
                   </label>
                   <Input
                     type="number"
-                    defaultValue="0"
+                    value={inicio}
+                    onChange={(e) => setInicio(e.target.value)}
                     className="h-8 text-sm"
                   />
                 </div>
@@ -154,7 +198,8 @@ export default function ReportGenerator() {
                   </label>
                   <Input
                     type="number"
-                    defaultValue="250"
+                    value={fin}
+                    onChange={(e) => setFin(e.target.value)}
                     className="h-8 text-sm"
                   />
                 </div>
@@ -165,6 +210,9 @@ export default function ReportGenerator() {
                   <Input type="text" className="h-8 text-sm" />
                 </div>
               </div>
+              <Button onClick={fetchContributors} disabled={isLoading}>
+                {isLoading ? "Cargando..." : "Buscar Contribuyentes"}
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -193,44 +241,48 @@ export default function ReportGenerator() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {testData.map((item) => (
-                    <TableRow key={item.idLugar}>
-                      <TableCell className="h-8 text-sm py-2">
-                        {item.idLugar}
+                  {isLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center py-4">
+                        Cargando datos...
                       </TableCell>
-                      <TableCell className="h-8 text-sm py-2">
-                        {item.nombreLugar}
+                    </TableRow>
+                  ) : contributors.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center py-4">
+                        No se encontraron datos.
                       </TableCell>
-                      <TableCell className="h-8 text-sm py-2">
-                        {item.numeroHR}
-                      </TableCell>
-                      <TableCell className="h-8 text-sm py-2">
-                        <div className="flex space-x-1">
-                          {[
-                            "HR",
-                            // "PU",
-                            // "PR",
-                            // "HRA",
-                            // "DAM",
-                            // "CDN",
-                            // "PAQUETE",
-                          ].map((report) => (
+                    </TableRow>
+                  ) : (
+                    // eslint-disable-next-line
+                    contributors.map((item: any) => (
+                      <TableRow key={item.idLugar}>
+                        <TableCell className="h-8 text-sm py-2">
+                          {item.idLugar}
+                        </TableCell>
+                        <TableCell className="h-8 text-sm py-2">
+                          {item.nombreLugar}
+                        </TableCell>
+                        <TableCell className="h-8 text-sm py-2">
+                          {item.numhr}
+                        </TableCell>
+                        <TableCell className="h-8 text-sm py-2">
+                          <div className="flex space-x-1">
                             <Button
-                              key={report}
                               size="sm"
                               variant="outline"
                               className="px-2 py-1 text-xs"
-                              onClick={() =>
-                                handleGenerateReport(report, item.contribuyente)
-                              }
+                              onClick={() => handleGenerateReport(item.codigo)}
+                              disabled={isLoading}
                             >
-                              {report}
+                              HR
                             </Button>
-                          ))}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                            {/* Add other report type buttons as needed */}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </div>
