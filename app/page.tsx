@@ -19,6 +19,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Link from "next/link";
+import { testData } from "@/data/test-data";
+import { generateHRPdf } from "@/utils/generate-hr-pdf";
 
 export default function ReportGenerator() {
   return (
@@ -171,30 +173,47 @@ export default function ReportGenerator() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow>
-                    <TableCell className="h-8 text-sm py-2">001</TableCell>
-                    <TableCell className="h-8 text-sm py-2">
-                      Piura Centro
-                    </TableCell>
-                    <TableCell className="h-8 text-sm py-2">123</TableCell>
-                    <TableCell className="h-8 text-sm py-2">
-                      <div className="flex space-x-1">
-                        {["HR", "PU", "PR", "HRA", "DAM", "CDN", "PAQUETE"].map(
-                          (report) => (
+                  {testData.map((item) => (
+                    <TableRow key={item.idLugar}>
+                      <TableCell className="h-8 text-sm py-2">
+                        {item.idLugar}
+                      </TableCell>
+                      <TableCell className="h-8 text-sm py-2">
+                        {item.nombreLugar}
+                      </TableCell>
+                      <TableCell className="h-8 text-sm py-2">
+                        {item.numeroHR}
+                      </TableCell>
+                      <TableCell className="h-8 text-sm py-2">
+                        <div className="flex space-x-1">
+                          {[
+                            "HR",
+                            "PU",
+                            "PR",
+                            "HRA",
+                            "DAM",
+                            "CDN",
+                            "PAQUETE",
+                          ].map((report) => (
                             <Button
                               key={report}
                               size="sm"
                               variant="outline"
                               className="px-2 py-1 text-xs"
-                              onClick={() => {}}
+                              onClick={() => {
+                                if (report === "HR") {
+                                  generateHRPdf(item.contribuyente);
+                                }
+                                // Other report types will be implemented later
+                              }}
                             >
                               {report}
                             </Button>
-                          )
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                          ))}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </div>
