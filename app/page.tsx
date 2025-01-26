@@ -178,7 +178,21 @@ export default function ReportGenerator() {
                     </TableCell>
                     <TableCell className="h-8 text-sm py-2">123</TableCell>
                     <TableCell className="h-8 text-sm py-2">
-                      HR-001-2024
+                      <div className="flex space-x-1">
+                        {["HR", "PU", "PR", "HRA", "DAM", "CDN", "PAQUETE"].map(
+                          (report) => (
+                            <Button
+                              key={report}
+                              size="sm"
+                              variant="outline"
+                              className="px-2 py-1 text-xs"
+                              onClick={() => {}}
+                            >
+                              {report}
+                            </Button>
+                          )
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 </TableBody>
