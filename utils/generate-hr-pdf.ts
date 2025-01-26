@@ -23,7 +23,7 @@ export const generateHRPdf = async (contribuyente: Contribuyente) => {
 
   // Add municipal logo with adjusted size (20x20mm)
   const logoUrl =
-    "https://sjc.microlink.io/oWepGdPS6AxNPfGbqPwNTt4biIxcXhkMiirT0sGwlnznxyDSIiOy8ZnLvJltzVaCX7ZLzcuy0rp7unSq0hd0AQ.jpeg";
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSbfLf7NwgfyVkd14s-e1L1k5eW04-2cAKwl-wCEl3gFDW1IVLobqve57qyw3nTkE_lcFI&usqp=CAU";
   const logo = await loadImage(logoUrl);
   doc.addImage(logo, "PNG", 15, 15, 20, 20);
 
