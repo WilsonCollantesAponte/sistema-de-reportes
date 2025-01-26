@@ -208,12 +208,12 @@ export default function ReportGenerator() {
                         <div className="flex space-x-1">
                           {[
                             "HR",
-                            "PU",
-                            "PR",
-                            "HRA",
-                            "DAM",
-                            "CDN",
-                            "PAQUETE",
+                            // "PU",
+                            // "PR",
+                            // "HRA",
+                            // "DAM",
+                            // "CDN",
+                            // "PAQUETE",
                           ].map((report) => (
                             <Button
                               key={report}
