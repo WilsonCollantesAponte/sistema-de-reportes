@@ -1,101 +1,192 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import Link from "next/link";
+
+export default function ReportGenerator() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen bg-white">
+      <div className="border-b">
+        <div className="container mx-auto px-4 py-2 flex justify-between items-center">
+          <h1 className="text-lg font-bold">
+            GENERAR DECLARACIÓN JURADA POR LUGAR
+          </h1>
+          <Link href="/" className="text-sm hover:underline">
+            Ir Inicio
+          </Link>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
+
+      <div className="container mx-auto px-4 py-4 space-y-4">
+        <Card className="shadow-sm">
+          <CardContent className="p-4">
+            <div className="bg-gray-100 px-3 py-2 mb-3">
+              <h2 className="text-sm font-semibold">Opciones de Búsqueda</h2>
+            </div>
+
+            <div className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div>
+                  <label className="text-xs font-medium block mb-1">
+                    Departamento:
+                  </label>
+                  <Select defaultValue="PIURA">
+                    <SelectTrigger className="h-8 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="PIURA">PIURA</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-xs font-medium block mb-1">
+                    Provincia:
+                  </label>
+                  <Select defaultValue="PIURA">
+                    <SelectTrigger className="h-8 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="PIURA">PIURA</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-xs font-medium block mb-1">
+                    Distrito:
+                  </label>
+                  <Select defaultValue="VEINTISEIS">
+                    <SelectTrigger className="h-8 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="VEINTISEIS">
+                        VEINTISEIS DE OCTUBRE
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
+                <div className="md:col-span-2">
+                  <label className="text-xs font-medium block mb-1">Año:</label>
+                  <Select defaultValue="2024">
+                    <SelectTrigger className="h-8 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="2024">2024</SelectItem>
+                      <SelectItem value="2023">2023</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="md:col-span-8">
+                  <label className="text-xs font-medium block mb-1">
+                    Lugar:
+                  </label>
+                  <div className="flex gap-2">
+                    <Input type="text" className="h-8 text-sm" />
+                    <Button className="h-8 px-3 text-sm">Buscar</Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-xs text-red-500 font-medium py-1">
+                Importante: Debe generar paquetes con un máximo de 250
+                Contribuyentes
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div>
+                  <label className="text-xs font-medium block mb-1">
+                    Cantidad inicio:
+                  </label>
+                  <Input
+                    type="number"
+                    defaultValue="0"
+                    className="h-8 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium block mb-1">
+                    Cantidad fin:
+                  </label>
+                  <Input
+                    type="number"
+                    defaultValue="250"
+                    className="h-8 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium block mb-1">
+                    Nombre Archivo:
+                  </label>
+                  <Input type="text" className="h-8 text-sm" />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm">
+          <CardContent className="p-0">
+            <div className="bg-gray-100 px-3 py-2 border-b">
+              <h2 className="text-sm font-semibold">LISTA DE LUGARES</h2>
+            </div>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="h-8 text-xs font-semibold">
+                      Id Lugar
+                    </TableHead>
+                    <TableHead className="h-8 text-xs font-semibold">
+                      Nombre Lugar
+                    </TableHead>
+                    <TableHead className="h-8 text-xs font-semibold">
+                      N°HR
+                    </TableHead>
+                    <TableHead className="h-8 text-xs font-semibold">
+                      HR - PU - PR - HRA - DAM - CDN - PAQUETE
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="h-8 text-sm py-2">001</TableCell>
+                    <TableCell className="h-8 text-sm py-2">
+                      Piura Centro
+                    </TableCell>
+                    <TableCell className="h-8 text-sm py-2">123</TableCell>
+                    <TableCell className="h-8 text-sm py-2">
+                      HR-001-2024
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
