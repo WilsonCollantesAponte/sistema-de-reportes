@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import { generateHRPdf } from "@/utils/generate-hr-pdf";
-
-const prisma = new PrismaClient();
+import prisma from "@/db";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
