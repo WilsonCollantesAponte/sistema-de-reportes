@@ -1,55 +1,79 @@
 import jsPDF from "jspdf";
 
-interface Predio {
-  unidadCatastral: string;
+export interface HRResult {
+  numhr: string;
+  codcont: string;
+}
+
+export interface HojaResumenResult {
+  codcont: string;
+  anio: string;
+  numhr: string;
+  baseimp: number;
+  numpredios: number;
+  impuesto: number;
+  gastos: number;
+  valtotal: number;
+  total: number;
+  fecha: Date;
+  numpaquete: string;
+}
+
+export interface TitularesResult {
+  id_persona_bd: string;
+  nombre_bd: string;
+  abrev_bd: string;
+  numero_bd: string;
+}
+
+export interface DomiciliosResult {
+  domicilio: string;
+}
+
+export interface PrediosResult {
+  c0500id_uni_cat: string;
   ubicacion: string;
-  valorPredio: number;
-  porcentaje: string;
+  n0500valuototal: number;
+  n0500valuoinaf: number;
+  n0500porctit: number;
+  valor_predio: number;
 }
 
-interface Contribuyente {
-  apellidosNombres: string;
-  dniRuc: string;
-  codigo: string;
-  domicilioFiscal: string;
-  predios: Predio[];
+export interface FooterResult {
+  descbaseuit_bd: string;
+  descbasesoles_bd: string;
+  tasa_bd: number;
+  base_bd: number;
+  impuesto_bd: number;
+  pie_bd: string;
 }
 
-interface HRData {
-  contribuyente: Contribuyente;
-  ejercicioFiscal: string;
-  numeroReferencia: string;
-  fechaEmision: string;
-  baseImponible: number;
-  impuestoAnual: number;
-  gastosEmision: number;
-  totalImporteAnual: number;
-  cuotas: {
-    numero: string;
-    vencimiento: string;
-    importe: number;
-  }[];
-  impuestos: {
-    numeroPredios: number;
-    tramoUIT: string;
-    tramoSoles: string;
-    alicuota: string;
-    baseImponible: number;
-    impuesto: number;
-  }[];
+export interface GenerateHRParams {
+  hrResult: HRResult[];
+  hojaResumenResult: HojaResumenResult[];
+  titularesResult: TitularesResult[];
+  domiciliosResult: DomiciliosResult[];
+  prediosResult: PrediosResult[];
+  footerResult: FooterResult[];
 }
 
-export const generateHRPdf = async (data: HRData) => {
+export const generateHR = ({
+  hrResult,
+  hojaResumenResult,
+  titularesResult,
+  domiciliosResult,
+  prediosResult,
+  footerResult,
+}: GenerateHRParams) => {
   const doc = new jsPDF({
     format: "a5",
     unit: "mm",
   });
 
   // Add municipal logo
-  const logoUrl =
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSbfLf7NwgfyVkd14s-e1L1k5eW04-2cAKwl-wCEl3gFDW1IVLobqve57qyw3nTkE_lcFI&usqp=CAU";
-  const logo = await loadImage(logoUrl);
-  doc.addImage(logo, "PNG", 15, 15, 20, 20);
+  // const logoUrl =
+  //   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSbfLf7NwgfyVkd14s-e1L1k5eW04-2cAKwl-wCEl3gFDW1IVLobqve57qyw3nTkE_lcFI&usqp=CAU";
+  // doc.addImage(logoUrl, "PNG", 15, 15, 20, 20);
 
   // Add municipality name
   doc.setFontSize(8);
@@ -79,7 +103,7 @@ export const generateHRPdf = async (data: HRData) => {
   doc.setFontSize(8);
   doc.setFont("helvetica", "bold");
   doc.text("EJERCICIO FISCAL", 37.5, 60, { align: "center" });
-  doc.text(data.ejercicioFiscal, 37.5, 65, { align: "center" });
+  doc.text(hojaResumenResult[0].anio, 37.5, 65, { align: "center" });
 
   // Add HR title
   doc.setFontSize(24);
@@ -98,14 +122,16 @@ export const generateHRPdf = async (data: HRData) => {
   doc.setFont("helvetica", "bold");
   doc.text("N° DE REFERENCIA:", 102, 59);
   doc.setFont("helvetica", "normal");
-  doc.text(data.numeroReferencia, 142, 59, { align: "right" });
+  doc.text(hrResult[0].numhr, 142, 59, { align: "right" });
 
   // Date box
   doc.rect(100, 62, 45, 6);
   doc.setFont("helvetica", "bold");
   doc.text("FECHA DE EMISIÓN:", 102, 65);
   doc.setFont("helvetica", "normal");
-  doc.text(data.fechaEmision, 142, 65, { align: "right" });
+  doc.text(hojaResumenResult[0].fecha.toLocaleDateString(), 142, 65, {
+    align: "right",
+  });
 
   // Contributor data section
   doc.rect(15, 71, 130, 4);
@@ -126,9 +152,9 @@ export const generateHRPdf = async (data: HRData) => {
 
   // Contributor data
   doc.setFont("helvetica", "normal");
-  doc.text(data.contribuyente.apellidosNombres, 16, 81);
-  doc.text(data.contribuyente.dniRuc, 97, 81);
-  doc.text(data.contribuyente.codigo, 117, 81);
+  doc.text(titularesResult[0].nombre_bd, 16, 81);
+  doc.text(titularesResult[0].numero_bd, 97, 81);
+  doc.text(titularesResult[0].id_persona_bd, 117, 81);
 
   // Fiscal address
   doc.rect(15, 83, 130, 8);
@@ -136,7 +162,7 @@ export const generateHRPdf = async (data: HRData) => {
   doc.setFont("helvetica", "bold");
   doc.text("DOMICILIO FISCAL", 16, 86);
   doc.setFont("helvetica", "normal");
-  doc.text(data.contribuyente.domicilioFiscal, 16, 89, { maxWidth: 127 });
+  doc.text(domiciliosResult[0].domicilio, 16, 89, { maxWidth: 127 });
 
   // Declared properties section
   doc.setFont("helvetica", "bold");
@@ -161,18 +187,20 @@ export const generateHRPdf = async (data: HRData) => {
 
   // Add property data
   doc.setFont("helvetica", "normal");
-  data.contribuyente.predios.forEach((predio, index) => {
+  prediosResult.forEach((predio, index) => {
     const yPos = 108 + index * 6;
     doc.setFontSize(4.5);
-    const unidadLines = doc.splitTextToSize(predio.unidadCatastral, 28);
+    const unidadLines = doc.splitTextToSize(predio.c0500id_uni_cat, 28);
     doc.text(unidadLines, 16, yPos);
 
     const ubicacionLines = doc.splitTextToSize(predio.ubicacion, 68);
     doc.text(ubicacionLines, 47, yPos);
 
-    doc.text(predio.porcentaje, 114, yPos, { align: "right" });
+    doc.text(predio.n0500porctit.toString() + "%", 114, yPos, {
+      align: "right",
+    });
     doc.setFontSize(5);
-    doc.text(predio.valorPredio.toFixed(2), 132, yPos, { align: "center" });
+    doc.text(predio.valor_predio.toFixed(2), 132, yPos, { align: "center" });
   });
 
   // Base imponible
@@ -180,7 +208,9 @@ export const generateHRPdf = async (data: HRData) => {
   doc.setFontSize(5);
   doc.setFont("helvetica", "bold");
   doc.text("BASE IMPONIBLE (S/ )", 95, 147);
-  doc.text(data.baseImponible.toFixed(2), 142, 147, { align: "right" });
+  doc.text(hojaResumenResult[0].baseimp.toFixed(2), 142, 147, {
+    align: "right",
+  });
 
   // Tax calculation section
   doc.setFontSize(6);
@@ -208,16 +238,18 @@ export const generateHRPdf = async (data: HRData) => {
 
   // Values
   doc.setFont("helvetica", "normal");
-  data.impuestos.forEach((impuesto, index) => {
-    const yPos = 162 + index * 6;
-    doc.text(impuesto.numeroPredios.toString(), 22.5, yPos, {
-      align: "center",
-    });
-    doc.text(impuesto.tramoUIT, 32, yPos);
-    doc.text(impuesto.tramoSoles, 52.5, yPos);
-    doc.text(impuesto.alicuota, 82.5, yPos, { align: "center" });
-    doc.text(impuesto.baseImponible.toFixed(2), 105, yPos, { align: "center" });
-    doc.text(impuesto.impuesto.toFixed(2), 125, yPos, { align: "center" });
+  const yPos = 162;
+  doc.text(hojaResumenResult[0].numpredios.toString(), 22.5, yPos, {
+    align: "center",
+  });
+  doc.text(footerResult[0].descbaseuit_bd.trim(), 32, yPos);
+  doc.text(footerResult[0].descbasesoles_bd.trim(), 52.5, yPos);
+  doc.text((footerResult[0].tasa_bd * 100).toFixed(1) + "%", 82.5, yPos, {
+    align: "center",
+  });
+  doc.text(footerResult[0].base_bd.toFixed(2), 105, yPos, { align: "center" });
+  doc.text(footerResult[0].impuesto_bd.toFixed(2), 125, yPos, {
+    align: "center",
   });
 
   // Remember text
@@ -247,11 +279,15 @@ export const generateHRPdf = async (data: HRData) => {
   doc.rect(90, 174, 55, 5);
 
   doc.text("IMPUESTO ANUAL CON REDONDEO", 92, 167);
-  doc.text(data.impuestoAnual.toFixed(2), 142, 167, { align: "right" });
+  doc.text(hojaResumenResult[0].impuesto.toFixed(2), 142, 167, {
+    align: "right",
+  });
   doc.text("GASTOS DE EMISION(S/)", 92, 172);
-  doc.text(data.gastosEmision.toFixed(2), 142, 172, { align: "right" });
+  doc.text(hojaResumenResult[0].gastos.toFixed(2), 142, 172, {
+    align: "right",
+  });
   doc.text("TOTAL IMPORTE ANUAL (S/)", 92, 177);
-  doc.text(data.totalImporteAnual.toFixed(2), 142, 177, { align: "right" });
+  doc.text(hojaResumenResult[0].total.toFixed(2), 142, 177, { align: "right" });
 
   // Payment quotas section
   doc.text("MONTOS A PAGAR CON OPCION EN CUOTAS(S/)", 16, 190);
@@ -270,7 +306,31 @@ export const generateHRPdf = async (data: HRData) => {
     "(NO INCLUYE REAJUSTE IPM)",
   ];
 
-  data.cuotas.forEach((cuota, index) => {
+  // Since we don't have actual quota data, we'll use placeholder values
+  const placeholderQuotas = [
+    {
+      numero: "1ra Cuota",
+      vencimiento: "28/02/2024",
+      importe: hojaResumenResult[0].total / 4,
+    },
+    {
+      numero: "2da Cuota",
+      vencimiento: "31/05/2024",
+      importe: hojaResumenResult[0].total / 4,
+    },
+    {
+      numero: "3ra Cuota",
+      vencimiento: "31/08/2024",
+      importe: hojaResumenResult[0].total / 4,
+    },
+    {
+      numero: "4ta Cuota",
+      vencimiento: "30/11/2024",
+      importe: hojaResumenResult[0].total / 4,
+    },
+  ];
+
+  placeholderQuotas.forEach((cuota, index) => {
     const x = 16 + index * 32.5;
     doc.setFont("helvetica", "bold");
     doc.text(cuota.numero, x + 16, 194, { align: "center" });
@@ -294,26 +354,17 @@ export const generateHRPdf = async (data: HRData) => {
   // Document number at bottom right
   doc.setFontSize(11);
   doc.setFont("helvetica", "bold");
-  doc.text(data.numeroReferencia, 145, 208, { align: "right" });
+  doc.text(hrResult[0].numhr, 145, 208, { align: "right" });
 
   // Save the PDF
-  try {
-    const fileName = `HR-${data.contribuyente.codigo}.pdf`;
-    const pdfBuffer = doc.output("arraybuffer");
-    return { success: true, fileName, pdfBuffer };
-  } catch (err) {
-    console.error("Error generating PDF:", err);
-    return { success: false };
-  }
-};
+  // try {
+  //   const fileName = `HR-${titularesResult[0].id_persona_bd}.pdf`;
+  //   const pdfBuffer = doc.output("arraybuffer");
+  //   return { success: true, fileName, pdfBuffer };
+  // } catch (err) {
+  //   console.error("Error generating PDF:", err);
+  //   return { success: false };
+  // }
 
-// Helper function to load image
-export const loadImage = (url: string): Promise<HTMLImageElement> => {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-    img.src = url;
-  });
+  return doc;
 };

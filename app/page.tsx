@@ -19,62 +19,99 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function ReportGenerator() {
   const [isLoading, setIsLoading] = useState(false);
   const [lugar, setLugar] = useState("");
   const [inicio, setInicio] = useState("0");
   const [fin, setFin] = useState("250");
-  const [contributors, setContributors] = useState([]);
+  const [contributors, setContributors] = useState<
+    {
+      result: string;
+      c0505anio: string;
+      c0001idlugar: string;
+      c0001codpersona: string;
+    }[]
+  >([]);
+  const [year, setYear] = useState("2024");
 
-  const handleGenerateReport = async (codigo: string) => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/api/generate-hr-report?codigo=${codigo}`);
-      if (!response.ok) {
-        throw new Error("Failed to generate report");
-      }
+  const [departamentos, setDepartamentos] = useState<
+    { idlugar_bd: string; nombre_bd: string }[]
+  >([]);
 
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.style.display = "none";
-      a.href = url;
-      a.download = `HR_Report_${codigo}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Error generating report:", error);
-      window.alert(
-        "No se pudo generar el reporte. Por favor, inténtelo de nuevo."
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [provincias, setProvincias] = useState<
+    { idlugar_bd: string; nombre_bd: string }[]
+  >([]);
+
+  const [distritos, setDistritos] = useState<
+    { idlugar_bd: string; nombre_bd: string }[]
+  >([]);
 
   const fetchContributors = async () => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `/api/contributors?lugar=${lugar}&inicio=${inicio}&fin=${fin}`
+        `/api/contributors?lugar=${lugar}&inicio=${inicio}&fin=${fin}&year=${year}`
       );
-      if (!response.ok) {
-        throw new Error("Failed to fetch contributors");
-      }
       const data = await response.json();
       setContributors(data);
     } catch (error) {
-      console.error("Error fetching contributors:", error);
+      console.error("Error:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleGenerateReport = async (
+    codContribuyente: string,
+    tipo: string
+  ) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/generar-reporte", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ codContribuyente, tipo, year }),
+      });
+
+      if (!response.ok) throw new Error("Error generating report");
+      // return;
+      // return alert("Supuestamente se generó el reporte");
+      // Create blob from response
+
+      const filename = `${tipo}_${codContribuyente}_${year}.pdf`;
+
+      // Create blob from response
+      const blob = await response.blob();
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetch(`/api/cargar-departamentos`)
+      .then((response) => response.json())
+      .then((data) => setDepartamentos(data));
+  }, []);
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-900X">
       <div className="border-b">
         <div className="container mx-auto px-4 py-2 flex justify-between items-center">
           <h1 className="text-lg font-bold">
@@ -99,12 +136,31 @@ export default function ReportGenerator() {
                   <label className="text-xs font-medium block mb-1">
                     Departamento:
                   </label>
-                  <Select defaultValue="PIURA">
+                  <Select
+                    onValueChange={(value) => {
+                      setLugar(value);
+                      fetch(
+                        `/api/cargar-provincias?mp_id_departamento=${value}`
+                      )
+                        .then((response) => response.json())
+                        .then((data) => {
+                          // Handle the fetched provinces data
+                          setProvincias(data);
+                        })
+                        .catch((error) => {
+                          console.error("Error fetching provinces:", error);
+                        });
+                    }}
+                  >
                     <SelectTrigger className="h-8 text-sm">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="PIURA">PIURA</SelectItem>
+                      {departamentos.map((item, index) => (
+                        <SelectItem key={index} value={item.idlugar_bd}>
+                          {item.nombre_bd}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -112,12 +168,28 @@ export default function ReportGenerator() {
                   <label className="text-xs font-medium block mb-1">
                     Provincia:
                   </label>
-                  <Select defaultValue="PIURA">
+                  <Select
+                    onValueChange={(value) => {
+                      fetch(`/api/cargar-distritos?mp_id_provincia=${value}`)
+                        .then((response) => response.json())
+                        .then((data) => {
+                          // Handle the fetched provinces data
+                          setDistritos(data);
+                        })
+                        .catch((error) => {
+                          console.error("Error fetching provinces:", error);
+                        });
+                    }}
+                  >
                     <SelectTrigger className="h-8 text-sm">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="PIURA">PIURA</SelectItem>
+                      {provincias.map((item, index) => (
+                        <SelectItem key={index} value={item.idlugar_bd}>
+                          {item.nombre_bd}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -125,17 +197,16 @@ export default function ReportGenerator() {
                   <label className="text-xs font-medium block mb-1">
                     Distrito:
                   </label>
-                  <Select
-                    defaultValue="VEINTISEIS"
-                    onValueChange={(value) => setLugar(value)}
-                  >
+                  <Select onValueChange={(value) => setLugar(value)}>
                     <SelectTrigger className="h-8 text-sm">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="VEINTISEIS">
-                        VEINTISEIS DE OCTUBRE
-                      </SelectItem>
+                      {distritos.map((item, index) => (
+                        <SelectItem key={index} value={item.idlugar_bd}>
+                          {item.nombre_bd}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -144,7 +215,7 @@ export default function ReportGenerator() {
               <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
                 <div className="md:col-span-2">
                   <label className="text-xs font-medium block mb-1">Año:</label>
-                  <Select defaultValue="2024">
+                  <Select value={year} onValueChange={setYear}>
                     <SelectTrigger className="h-8 text-sm">
                       <SelectValue />
                     </SelectTrigger>
@@ -217,9 +288,9 @@ export default function ReportGenerator() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
+        <Card className="shadow-sm bg-white">
           <CardContent className="p-0">
-            <div className="bg-gray-100 px-3 py-2 border-b">
+            <div className="px-3 py-2 border-b">
               <h2 className="text-sm font-semibold">LISTA DE LUGARES</h2>
             </div>
             <div className="overflow-x-auto">
@@ -227,13 +298,13 @@ export default function ReportGenerator() {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="h-8 text-xs font-semibold">
-                      Id Lugar
+                      Año
                     </TableHead>
                     <TableHead className="h-8 text-xs font-semibold">
-                      Nombre Lugar
+                      c0001idlugar
                     </TableHead>
                     <TableHead className="h-8 text-xs font-semibold">
-                      N°HR
+                      c0001codpersona
                     </TableHead>
                     <TableHead className="h-8 text-xs font-semibold">
                       HR - PU - PR - HRA - DAM - CDN - PAQUETE
@@ -254,17 +325,16 @@ export default function ReportGenerator() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    // eslint-disable-next-line
-                    contributors.map((item: any) => (
-                      <TableRow key={item.idLugar}>
+                    contributors.map((item, i) => (
+                      <TableRow key={i}>
                         <TableCell className="h-8 text-sm py-2">
-                          {item.idLugar}
+                          {item.c0505anio}
                         </TableCell>
                         <TableCell className="h-8 text-sm py-2">
-                          {item.nombreLugar}
+                          {item.c0001idlugar}
                         </TableCell>
                         <TableCell className="h-8 text-sm py-2">
-                          {item.numhr}
+                          {item.c0001codpersona}
                         </TableCell>
                         <TableCell className="h-8 text-sm py-2">
                           <div className="flex space-x-1">
@@ -272,12 +342,91 @@ export default function ReportGenerator() {
                               size="sm"
                               variant="outline"
                               className="px-2 py-1 text-xs"
-                              onClick={() => handleGenerateReport(item.codigo)}
+                              onClick={() =>
+                                handleGenerateReport(item.c0001codpersona, "HR")
+                              }
                               disabled={isLoading}
                             >
                               HR
                             </Button>
-                            {/* Add other report type buttons as needed */}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="px-2 py-1 text-xs"
+                              onClick={() =>
+                                handleGenerateReport(item.c0001codpersona, "PU")
+                              }
+                              disabled={isLoading}
+                            >
+                              PU
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="px-2 py-1 text-xs"
+                              onClick={() =>
+                                handleGenerateReport(item.c0001codpersona, "PR")
+                              }
+                              disabled={isLoading}
+                            >
+                              PR
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="px-2 py-1 text-xs"
+                              onClick={() =>
+                                handleGenerateReport(
+                                  item.c0001codpersona,
+                                  "HRA"
+                                )
+                              }
+                              disabled={isLoading}
+                            >
+                              HRA
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="px-2 py-1 text-xs"
+                              onClick={() =>
+                                handleGenerateReport(
+                                  item.c0001codpersona,
+                                  "DAM"
+                                )
+                              }
+                              disabled={isLoading}
+                            >
+                              DAM
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="px-2 py-1 text-xs"
+                              onClick={() =>
+                                handleGenerateReport(
+                                  item.c0001codpersona,
+                                  "CDN"
+                                )
+                              }
+                              disabled={isLoading}
+                            >
+                              CDN
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="px-2 py-1 text-xs bg-blue-50"
+                              onClick={() =>
+                                handleGenerateReport(
+                                  item.c0001codpersona,
+                                  "PAQUETE"
+                                )
+                              }
+                              disabled={isLoading}
+                            >
+                              PAQUETE
+                            </Button>
                           </div>
                         </TableCell>
                       </TableRow>
