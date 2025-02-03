@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/table";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Loader } from "lucide-react";
 
 export default function ReportGenerator() {
   const [isLoading, setIsLoading] = useState(false);
@@ -48,6 +49,10 @@ export default function ReportGenerator() {
     { idlugar_bd: string; nombre_bd: string }[]
   >([]);
 
+  const [loadingReports, setLoadingReports] = useState<Record<string, boolean>>(
+    {}
+  );
+
   const fetchContributors = async () => {
     setIsLoading(true);
     try {
@@ -67,7 +72,10 @@ export default function ReportGenerator() {
     codContribuyente: string,
     tipo: string
   ) => {
-    setIsLoading(true);
+    setLoadingReports((prev) => ({
+      ...prev,
+      [`${codContribuyente}-${tipo}`]: true,
+    }));
     try {
       const response = await fetch("/api/generar-reporte", {
         method: "POST",
@@ -78,16 +86,9 @@ export default function ReportGenerator() {
       });
 
       if (!response.ok) throw new Error("Error generating report");
-      // return;
-      // return alert("Supuestamente se generó el reporte");
-      // Create blob from response
 
       const filename = `${tipo}_${codContribuyente}_${year}.pdf`;
-
-      // Create blob from response
       const blob = await response.blob();
-
-      // Create download link
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.style.display = "none";
@@ -100,7 +101,10 @@ export default function ReportGenerator() {
     } catch (error) {
       console.error("Error:", error);
     } finally {
-      setIsLoading(false);
+      setLoadingReports((prev) => ({
+        ...prev,
+        [`${codContribuyente}-${tipo}`]: false,
+      }));
     }
   };
 
@@ -338,95 +342,43 @@ export default function ReportGenerator() {
                         </TableCell>
                         <TableCell className="h-8 text-sm py-2">
                           <div className="flex space-x-1">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="px-2 py-1 text-xs"
-                              onClick={() =>
-                                handleGenerateReport(item.c0001codpersona, "HR")
-                              }
-                              disabled={isLoading}
-                            >
-                              HR
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="px-2 py-1 text-xs"
-                              onClick={() =>
-                                handleGenerateReport(item.c0001codpersona, "PU")
-                              }
-                              disabled={isLoading}
-                            >
-                              PU
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="px-2 py-1 text-xs"
-                              onClick={() =>
-                                handleGenerateReport(item.c0001codpersona, "PR")
-                              }
-                              disabled={isLoading}
-                            >
-                              PR
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="px-2 py-1 text-xs"
-                              onClick={() =>
-                                handleGenerateReport(
-                                  item.c0001codpersona,
-                                  "HRA"
-                                )
-                              }
-                              disabled={isLoading}
-                            >
-                              HRA
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="px-2 py-1 text-xs"
-                              onClick={() =>
-                                handleGenerateReport(
-                                  item.c0001codpersona,
-                                  "DAM"
-                                )
-                              }
-                              disabled={isLoading}
-                            >
-                              DAM
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="px-2 py-1 text-xs"
-                              onClick={() =>
-                                handleGenerateReport(
-                                  item.c0001codpersona,
-                                  "CDN"
-                                )
-                              }
-                              disabled={isLoading}
-                            >
-                              CDN
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="px-2 py-1 text-xs bg-blue-50"
-                              onClick={() =>
-                                handleGenerateReport(
-                                  item.c0001codpersona,
-                                  "PAQUETE"
-                                )
-                              }
-                              disabled={isLoading}
-                            >
-                              PAQUETE
-                            </Button>
+                            {[
+                              "HR",
+                              "PU",
+                              "PR",
+                              "HRA",
+                              "DAM",
+                              "CDN",
+                              "PAQUETE",
+                            ].map((tipo) => (
+                              <Button
+                                key={tipo}
+                                size="sm"
+                                variant="outline"
+                                className={`px-2 py-1 text-xs ${
+                                  tipo === "PAQUETE" ? "bg-blue-50" : ""
+                                } w-16`}
+                                onClick={() =>
+                                  handleGenerateReport(
+                                    item.c0001codpersona,
+                                    tipo
+                                  )
+                                }
+                                disabled={
+                                  loadingReports[
+                                    `${item.c0001codpersona}-${tipo}`
+                                  ]
+                                }
+                              >
+                                {loadingReports[
+                                  `${item.c0001codpersona}-${tipo}`
+                                ] ? (
+                                  <Loader className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  tipo
+                                )}
+                              </Button>
+                            ))}
                           </div>
                         </TableCell>
                       </TableRow>
