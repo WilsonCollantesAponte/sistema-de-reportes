@@ -115,7 +115,7 @@ export function generateHRA(
   doc.rect(margin, boxY, contentWidth / 2 - 5, 4);
   doc.text("EJERCICIO FISCAL", margin + 2, boxY + 3);
   doc.text(
-    hraHojaResumenResult[0].c0507anio_bd,
+    hraHojaResumenResult[0]?.c0507anio_bd ?? "",
     margin + contentWidth / 4 - 10,
     boxY + 8
   );
@@ -124,7 +124,7 @@ export function generateHRA(
   doc.rect(margin + contentWidth / 2, boxY, contentWidth / 2, 10);
   doc.rect(margin + contentWidth / 2, boxY, contentWidth / 2, 4);
   doc.text("N° DETERMINACIÓN:", margin + contentWidth / 2 + 2, boxY + 3);
-  doc.text(hraResult[0].numhra, margin + contentWidth / 2 + 2, boxY + 8);
+  doc.text(hraResult[0]?.numhra ?? "", margin + contentWidth / 2 + 2, boxY + 8);
   doc.text("FECHA DE EMISIÓN:", margin + contentWidth / 2 + 30, boxY - 2);
   doc.text(
     new Date().toLocaleDateString(),
@@ -143,20 +143,20 @@ export function generateHRA(
   doc.text("DNI / CIP / RUC", pageWidth - margin - 60, contribY + 7);
   doc.text("CÓDIGO", pageWidth - margin - 20, contribY + 7);
 
-  doc.text(hraTitularesResult[0].nombre_bd, margin + 2, contribY + 12);
+  doc.text(hraTitularesResult[0]?.nombre_bd ?? "", margin + 2, contribY + 12);
   doc.text(
-    hraTitularesResult[0].numero_bd,
+    hraTitularesResult[0]?.numero_bd ?? "",
     pageWidth - margin - 60,
     contribY + 12
   );
-  doc.text(hraResult[0].codcont, pageWidth - margin - 20, contribY + 12);
+  doc.text(hraResult[0]?.codcont ?? "", pageWidth - margin - 20, contribY + 12);
 
   // Domicilio fiscal - más compacto
   const domicilioY = contribY + 17;
   doc.rect(margin, domicilioY, contentWidth, 12);
   doc.rect(margin, domicilioY, contentWidth, 4);
   doc.text("DOMICILIO FISCAL", margin + 2, domicilioY + 3);
-  doc.text(hraDomiciliosResult[0].domicilio, margin + 2, domicilioY + 8);
+  doc.text(hraDomiciliosResult[0]?.domicilio ?? "", margin + 2, domicilioY + 8);
 
   // Predios declarados con texto ajustado
   const prediosY = domicilioY + 14;
@@ -240,16 +240,16 @@ export function generateHRA(
       const rowY = dataY + index * 5;
       xPos = margin;
 
-      const limpiezaNum = Number(predio.limpiezaredond);
-      const areasverdesNum = Number(predio.areasverdesredond);
-      const serenazgoNum = Number(predio.serenazgoredond);
-      const gastosNum = Number(predio.gastoemision);
+      const limpiezaNum = Number(predio.limpiezaredond ?? 0);
+      const areasverdesNum = Number(predio.areasverdesredond ?? 0);
+      const serenazgoNum = Number(predio.serenazgoredond ?? 0);
+      const gastosNum = Number(predio.gastoemision ?? 0);
       const totalPredio = limpiezaNum + areasverdesNum + serenazgoNum;
       const totalWithGastos = totalPredio + gastosNum;
 
       // Unidad Catastral
       doc.rect(xPos, rowY, colWidths.unidadCatastral, 5);
-      doc.text(predio.c0500id_uni_cat, xPos + 1, rowY + 3.5);
+      doc.text(predio.c0500id_uni_cat ?? "", xPos + 1, rowY + 3.5);
       xPos += colWidths.unidadCatastral;
 
       // Arbitrios
@@ -306,12 +306,18 @@ export function generateHRA(
   // Datos
   xPos = margin;
   const liquidacionData = [
-    String(hraHojaResumenResult[0].n0507numpredios_bd),
-    String(Number(hraHojaResumenResult[0].n0507arbitriototal_bd).toFixed(2)),
-    String(Number(hraHojaResumenResult[0].n0507gastos_bd).toFixed(2)),
-    String(Number(hraHojaResumenResult[0].n0507arbitrioredond_bd).toFixed(2)),
+    String(hraHojaResumenResult[0]?.n0507numpredios_bd ?? 0),
     String(
-      Number(totalArbitriosMunicipales.totalArbitriosMunicipales).toFixed(2)
+      Number(hraHojaResumenResult[0]?.n0507arbitriototal_bd ?? 0).toFixed(2)
+    ),
+    String(Number(hraHojaResumenResult[0]?.n0507gastos_bd ?? 0).toFixed(2)),
+    String(
+      Number(hraHojaResumenResult[0]?.n0507arbitrioredond_bd ?? 0).toFixed(2)
+    ),
+    String(
+      Number(totalArbitriosMunicipales.totalArbitriosMunicipales ?? 0).toFixed(
+        2
+      )
     ),
   ];
 
@@ -343,11 +349,13 @@ export function generateHRA(
   const mensualTableY = mensualY + 2;
   const monthWidth = contentWidth / 6;
   const totalAmount = Number.parseFloat(
-    totalArbitriosMunicipales.totalArbitriosMunicipales
+    totalArbitriosMunicipales.totalArbitriosMunicipales ?? 0
   );
   const monthlyAmount = Number((totalAmount / 12).toFixed(2));
   const firstMonthAmount = Number(
-    (monthlyAmount + Number(hraHojaResumenResult[0].n0507gastos_bd)).toFixed(2)
+    (
+      monthlyAmount + Number(hraHojaResumenResult[0]?.n0507gastos_bd ?? 0)
+    ).toFixed(2)
   );
 
   // Primera fila (1-6 cuotas)
@@ -378,7 +386,7 @@ export function generateHRA(
   // Nota y número de documento
   doc.setFontSize(smallFont);
   doc.text("(*)Incluye Gastos de Emision", margin, secondRowY + 15);
-  doc.text(hraResult[0].numhra, pageWidth - margin - 15, secondRowY + 15);
+  doc.text(hraResult[0].numhra ?? "", pageWidth - margin - 15, secondRowY + 15);
 
   return doc;
 }

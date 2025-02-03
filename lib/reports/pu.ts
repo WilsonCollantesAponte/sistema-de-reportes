@@ -59,13 +59,14 @@ interface PUOtrasConstruccionesResult {
 }
 
 export function generatePU(
-  puResult: PUResult[],
-  puReportResult: PUReportResult[],
-  puTitularesResult: PUTitularesResult[],
-  puUbicacionesResult: PUUbicacionesResult[],
-  puDatosPredioResult: PUDatosPredioResult[],
-  puConstruccionesResult: PUConstruccionesResult[],
-  puOtrasConstruccionesResult: PUOtrasConstruccionesResult[]
+  puResult: PUResult[] = [],
+  puReportResult: PUReportResult[] = [],
+  puTitularesResult: PUTitularesResult[] = [],
+  puUbicacionesResult: PUUbicacionesResult[] = [],
+  puDatosPredioResult: PUDatosPredioResult[] = [],
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  puConstruccionesResult: PUConstruccionesResult[] = [],
+  puOtrasConstruccionesResult: PUOtrasConstruccionesResult[] = []
 ): jsPDF {
   const doc = new jsPDF({
     format: "a5",
@@ -101,8 +102,8 @@ export function generatePU(
   // Información de página - compacta
   doc.text("Pag 1 de 1", 120, 8);
   if (puResult.length > 0) {
-    doc.text(`N° DE REFERENCIA: ${puResult[0].numpu}`, 120, 11);
-    const fecha = new Date(puReportResult[0].fecha);
+    doc.text(`N° DE REFERENCIA: ${puResult[0].numpu || ""}`, 120, 11);
+    const fecha = new Date(puReportResult[0]?.fecha || "");
     doc.text(`FECHA DE EMISIÓN: ${fecha.toLocaleDateString()}`, 120, 14);
   }
 
@@ -112,14 +113,16 @@ export function generatePU(
   doc.setFontSize(denseFont);
   doc.text("EJERCICIO FISCAL", 30, fiscalY + 3, { align: "center" });
   if (puReportResult.length > 0) {
-    doc.text(puReportResult[0].c0500anio, 30, fiscalY + 6, { align: "center" });
+    doc.text(puReportResult[0].c0500anio || "", 30, fiscalY + 6, {
+      align: "center",
+    });
   }
 
   // Unidad catastral - compacta
   doc.rect(52, fiscalY, 86, 8);
   doc.text("UNIDAD CATASTRAL", 95, fiscalY + 3, { align: "center" });
   if (puReportResult.length > 0) {
-    doc.text(puReportResult[0].c0500id_uni_cat, 95, fiscalY + 6, {
+    doc.text(puReportResult[0].c0500id_uni_cat || "", 95, fiscalY + 6, {
       align: "center",
     });
   }
@@ -138,9 +141,9 @@ export function generatePU(
 
   if (puTitularesResult.length > 0) {
     const titular = puTitularesResult[0];
-    doc.text(titular.nombre_bd.trim(), 11, contribY + 6);
-    doc.text(titular.numero_bd.trim(), 100, contribY + 6);
-    doc.text(titular.id_persona_bd, 125, contribY + 6);
+    doc.text(titular.nombre_bd?.trim() || "", 11, contribY + 6);
+    doc.text(titular.numero_bd?.trim() || "", 100, contribY + 6);
+    doc.text(titular.id_persona_bd || "", 125, contribY + 6);
   }
 
   // Datos del predio - compacto
@@ -153,7 +156,7 @@ export function generatePU(
   if (puUbicacionesResult.length > 0) {
     doc.rect(10, predioY + 4, 128, 6);
     doc.setFontSize(denseFont);
-    doc.text(puUbicacionesResult[0].ubicacion.trim(), 11, predioY + 8);
+    doc.text(puUbicacionesResult[0].ubicacion?.trim() || "", 11, predioY + 8);
   }
 
   // Tabla de características - compacta
@@ -181,16 +184,16 @@ export function generatePU(
       let texto = "";
       switch (index) {
         case 0:
-          texto = datos.condicion.trim();
+          texto = datos.condicion?.trim() || "";
           break;
         case 1:
-          texto = datos.desc_uso.trim();
+          texto = datos.desc_uso?.trim() || "";
           break;
         case 2:
-          texto = datos.condicion_pro.trim();
+          texto = datos.condicion_pro?.trim() || "";
           break;
         case 3:
-          texto = Number(datos.n0500porctit).toFixed(3);
+          texto = Number(datos.n0500porctit || 0).toFixed(3);
           break;
       }
       doc.text(texto, currentX + 1, caracY + 10);
@@ -217,9 +220,9 @@ export function generatePU(
     const datos = puDatosPredioResult[0];
     currentX = 10;
     [
-      Number(datos.n0500areaterreno).toFixed(2),
-      Number(datos.n0500arancel).toFixed(2),
-      Number(datos.n0500valorterreno).toFixed(2),
+      Number(datos.n0500areaterreno || 0).toFixed(2),
+      Number(datos.n0500arancel || 0).toFixed(2),
+      Number(datos.n0500valorterreno || 0).toFixed(2),
     ].forEach((valor, index) => {
       doc.rect(currentX, terrenoY + 6, terrenoHeaders[index].width, 6);
       doc.text(valor, currentX + 1, terrenoY + 10);
@@ -269,11 +272,11 @@ export function generatePU(
 
   if (puOtrasConstruccionesResult.length > 0) {
     const otras = puOtrasConstruccionesResult[0];
-    doc.text(otras.ant.toString(), 35, tableY + 9);
-    doc.text(Number(otras.n0502prod_total).toFixed(2), 85, tableY + 9);
-    doc.text(Number(otras.valorunitario).toFixed(2), 97, tableY + 9);
-    doc.text(otras.depreciacion.toString(), 110, tableY + 9);
-    doc.text(Number(otras.valor).toFixed(2), 125, tableY + 9);
+    doc.text(otras.ant?.toString() || "", 35, tableY + 9);
+    doc.text(Number(otras.n0502prod_total || 0).toFixed(2), 85, tableY + 9);
+    doc.text(Number(otras.valorunitario || 0).toFixed(2), 97, tableY + 9);
+    doc.text(otras.depreciacion?.toString() || "", 110, tableY + 9);
+    doc.text(Number(otras.valor || 0).toFixed(2), 125, tableY + 9);
   }
   doc.text("Total", 100, tableY + 11);
 
@@ -294,7 +297,7 @@ export function generatePU(
     doc.setFontSize(ultraDenseFont);
     doc.text("VALUO TOTAL DEL PREDIO (VT\n+VC + VOI +VAC)", 11, boxY + 3);
     doc.setFontSize(denseFont);
-    doc.text(Number(report.n0500valuototal).toFixed(2), 20, boxY + 6);
+    doc.text(Number(report.n0500valuototal || 0).toFixed(2), 20, boxY + 6);
 
     // X
     doc.setFontSize(8);
@@ -305,7 +308,7 @@ export function generatePU(
     doc.setFontSize(ultraDenseFont);
     doc.text("% PROPIEDAD", 70, boxY + 3);
     doc.setFontSize(denseFont);
-    doc.text(`${Number(report.n0500porctit).toFixed(4)}%`, 70, boxY + 6);
+    doc.text(`${Number(report.n0500porctit || 0).toFixed(4)}%`, 70, boxY + 6);
 
     // =
     doc.setFontSize(8);
@@ -316,7 +319,8 @@ export function generatePU(
     doc.setFontSize(ultraDenseFont);
     doc.text("VALUO DEL PREDIO AFECTO", 111, boxY + 3);
     doc.setFontSize(denseFont);
-    const valorAfecto = report.n0500valuototal * (report.n0500porctit / 100);
+    const valorAfecto =
+      (report.n0500valuototal || 0) * ((report.n0500porctit || 0) / 100);
     doc.text(Number(valorAfecto).toFixed(2), 120, boxY + 6);
   }
 

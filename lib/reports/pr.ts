@@ -1,57 +1,62 @@
 import { jsPDF } from "jspdf";
 
-// Dummy interfaces for compilation.  Replace with your actual interfaces.
+// Interfaces se mantienen sin cambios
+
+// Assuming PRResult is an interface or type, you'll need to import it or define it here.
+// For example:
+// import { PRResult } from './your-file';  // Replace './your-file' with the actual path
 interface PRResult {
   codcont: string;
+  // Add other properties as needed
 }
 
 interface PRReportResult {
-  c0508anio_bd: string;
-  c0508id_uni_cat_bd: string;
-  c0508numpr_bd: string;
-  n0508valorterreno_bd: number;
-  n0508valorconstr_bd: number;
-  n0508valorinstalac_bd: number;
-  n0508valuototal_bd: number;
+  c0508anio_bd: number | null;
+  c0508id_uni_cat_bd: string | null;
+  c0508numpr_bd: string | null;
+  n0508valorterreno_bd: number | null;
+  n0508valorconstr_bd: number | null;
+  n0508valorinstalac_bd: number | null;
+  n0508valuototal_bd: number | null;
 }
 
 interface PRTitularesResult {
-  nombre_bd: string;
-  numero_bd: string;
+  nombre_bd: string | null;
+  numero_bd: string | null;
 }
 
 interface PRUbicacionesResult {
-  ubicacion: string;
+  ubicacion: string | null;
 }
 
 interface PRDatosPredioResult {
-  situacion: string;
-  tipoedifica: string;
-  uso: string;
-  condicion: string;
-  n0500areaterreno: number;
+  situacion: string | null;
+  tipoedifica: string | null;
+  uso: string | null;
+  condicion: string | null;
+  n0500areaterreno: number | null;
 }
 
 interface PRGrupoTierraResult {
-  grupotierra: string;
-  codgategoria: string;
-  valorunit: number;
-  area: number;
-  valorterreno: number;
+  grupotierra: string | null;
+  codgategoria: string | null;
+  valorunit: number | null;
+  area: number | null;
+  valorterreno: number | null;
 }
 
 interface PRConstruccionesResult {
-  c0501numpiso: string;
-  mepdesc: string;
-  escdesc: string;
-  ant: number;
-  categorias: string;
-  valorunitario: number;
-  incr: number;
-  depreciacion: number;
-  valorunitdepreciado: number;
-  areaconstruida: number;
-  valorconstruccion: number;
+  c0501numpiso: string | null;
+  mepdesc: string | null;
+  escdesc: string | null;
+  ant: number | null;
+  categorias: string | null;
+  valorunitario: number | null;
+  incr: string | null;
+  depreciacion: number | null;
+  valorunitdepreciado: number | null;
+  areaconstruida: number | null;
+  valorconstruccion: number | null;
 }
 
 export function generatePR(
@@ -103,35 +108,47 @@ export function generatePR(
 
   doc.setFontSize(baseFont);
   doc.text("EJERCICIO FISCAL", leftMargin + 2, 39);
-  doc.text(prReportResult[0].c0508anio_bd, leftMargin + 2, 43);
+  doc.text(
+    prReportResult[0]?.c0508anio_bd?.toString() ?? "",
+    leftMargin + 2,
+    43
+  );
 
   doc.text("UNIDAD CATASTRAL", leftMargin + boxWidth + 2, 39);
   doc.text(
-    prReportResult[0].c0508id_uni_cat_bd.trim(),
+    (prReportResult[0]?.c0508id_uni_cat_bd ?? "").trim(),
     leftMargin + boxWidth + 2,
     43
   );
 
   doc.text("N° DE REFERENCIA:", leftMargin + 2 * boxWidth + 2, 39);
-  doc.text(prReportResult[0].c0508numpr_bd, leftMargin + 2 * boxWidth + 2, 43);
+  doc.text(
+    prReportResult[0]?.c0508numpr_bd ?? "",
+    leftMargin + 2 * boxWidth + 2,
+    43
+  );
 
   // Taxpayer information - more compact
   doc.rect(leftMargin, 47, contentWidth, 12);
   doc.text("DATOS DEL CONTRIBUYENTE", leftMargin + 2, 51);
   doc.setFontSize(smallFont);
   doc.text("APELLIDOS Y NOMBRES / RAZÓN SOCIAL", leftMargin + 2, 55);
-  doc.text(prTitularesResult[0].nombre_bd, leftMargin + 2, 58);
+  doc.text(prTitularesResult[0]?.nombre_bd ?? "", leftMargin + 2, 58);
   doc.text("DNI / CIP / RUC", leftMargin + contentWidth * 0.6, 55);
-  doc.text(prTitularesResult[0].numero_bd, leftMargin + contentWidth * 0.6, 58);
+  doc.text(
+    prTitularesResult[0]?.numero_bd ?? "",
+    leftMargin + contentWidth * 0.6,
+    58
+  );
   doc.text("CÓDIGO", leftMargin + contentWidth * 0.8, 55);
-  doc.text(prResult[0].codcont, leftMargin + contentWidth * 0.8, 58);
+  doc.text(prResult[0]?.codcont ?? "", leftMargin + contentWidth * 0.8, 58);
 
   // Property location - more compact
   doc.rect(leftMargin, 61, contentWidth, 10);
   doc.setFontSize(baseFont);
   doc.text("UBICACIÓN DEL PREDIO", leftMargin + 2, 65);
   doc.setFontSize(tinyFont);
-  doc.text(prUbicacionesResult[0].ubicacion, leftMargin + 2, 69, {
+  doc.text(prUbicacionesResult[0]?.ubicacion ?? "", leftMargin + 2, 69, {
     maxWidth: contentWidth - 4,
   });
 
@@ -178,11 +195,11 @@ export function generatePR(
   // Data
   xPos = leftMargin;
   [
-    prDatosPredioResult[0].situacion,
-    prDatosPredioResult[0].tipoedifica.trim(),
-    prDatosPredioResult[0].uso,
-    prDatosPredioResult[0].condicion.trim(),
-    prDatosPredioResult[0].n0500areaterreno.toString(),
+    prDatosPredioResult[0]?.situacion ?? "",
+    (prDatosPredioResult[0]?.tipoedifica ?? "").trim(),
+    prDatosPredioResult[0]?.uso ?? "",
+    (prDatosPredioResult[0]?.condicion ?? "").trim(),
+    (prDatosPredioResult[0]?.n0500areaterreno ?? "").toString(),
   ].forEach((value, i) => {
     doc.text(value, xPos + 1, tableY + 7, {
       maxWidth: colWidths[i] - 2,
@@ -243,11 +260,15 @@ export function generatePR(
       xPos = leftMargin;
       [
         (index + 1).toString(),
-        item.grupotierra,
-        item.codgategoria,
-        item.valorunit.toLocaleString("es-PE", { minimumFractionDigits: 2 }),
-        item.area.toFixed(2),
-        item.valorterreno.toLocaleString("es-PE", { minimumFractionDigits: 2 }),
+        item.grupotierra ?? "",
+        item.codgategoria ?? "",
+        (item.valorunit ?? 0).toLocaleString("es-PE", {
+          minimumFractionDigits: 2,
+        }),
+        (item.area ?? 0).toFixed(2),
+        (item.valorterreno ?? 0).toLocaleString("es-PE", {
+          minimumFractionDigits: 2,
+        }),
       ].forEach((cell, i) => {
         doc.text(cell, xPos + 1, landTableY + 13 + index * 4, {
           maxWidth: landColWidths[i] - 2,
@@ -319,17 +340,17 @@ export function generatePR(
     prConstruccionesResult.forEach((item, index) => {
       xPos = leftMargin;
       [
-        item.c0501numpiso,
-        item.mepdesc,
-        item.escdesc,
-        item.ant.toString(),
-        item.categorias,
-        item.valorunitario.toFixed(2),
-        item.incr.toString(),
-        item.depreciacion.toFixed(2),
-        item.valorunitdepreciado.toFixed(2),
-        item.areaconstruida.toFixed(2),
-        item.valorconstruccion.toFixed(2),
+        item.c0501numpiso ?? "",
+        item.mepdesc ?? "",
+        item.escdesc ?? "",
+        (item.ant ?? 0).toString(),
+        item.categorias ?? "",
+        (item.valorunitario ?? 0).toFixed(2),
+        (item.incr ?? 0).toString(),
+        (item.depreciacion ?? 0).toFixed(2),
+        (item.valorunitdepreciado ?? 0).toFixed(2),
+        (item.areaconstruida ?? 0).toFixed(2),
+        (item.valorconstruccion ?? 0).toFixed(2),
       ].forEach((cell, i) => {
         doc.text(cell, xPos + 1, constTableY + 13 + index * 4, {
           maxWidth: constColWidths[i] - 2,
@@ -413,7 +434,7 @@ export function generatePR(
   doc.text("VALOR DEL", leftMargin + 2, valueTableY + 8);
   doc.text("TERRENO", leftMargin + 2, valueTableY + 11);
   doc.text(
-    prReportResult[0].n0508valorterreno_bd.toLocaleString("es-PE", {
+    (prReportResult[0]?.n0508valorterreno_bd ?? 0).toLocaleString("es-PE", {
       minimumFractionDigits: 2,
     }),
     leftMargin + 2,
@@ -425,7 +446,7 @@ export function generatePR(
   doc.text("VALOR", leftMargin + valueColWidth + 2, valueTableY + 8);
   doc.text("CONSTRUC.", leftMargin + valueColWidth + 2, valueTableY + 11);
   doc.text(
-    prReportResult[0].n0508valorconstr_bd.toLocaleString("es-PE", {
+    (prReportResult[0]?.n0508valorconstr_bd ?? 0).toLocaleString("es-PE", {
       minimumFractionDigits: 2,
     }),
     leftMargin + valueColWidth + 2,
@@ -437,7 +458,7 @@ export function generatePR(
   doc.text("VALOR OTR", leftMargin + 2 * valueColWidth + 2, valueTableY + 8);
   doc.text("INSTAL.", leftMargin + 2 * valueColWidth + 2, valueTableY + 11);
   doc.text(
-    prReportResult[0].n0508valorinstalac_bd.toLocaleString("es-PE", {
+    (prReportResult[0]?.n0508valorinstalac_bd ?? 0).toLocaleString("es-PE", {
       minimumFractionDigits: 2,
     }),
     leftMargin + 2 * valueColWidth + 2,
@@ -452,7 +473,7 @@ export function generatePR(
     valueTableY + 8
   );
   doc.text(
-    prReportResult[0].n0508valuototal_bd.toLocaleString("es-PE", {
+    (prReportResult[0]?.n0508valuototal_bd ?? 0).toLocaleString("es-PE", {
       minimumFractionDigits: 2,
     }),
     leftMargin + 3 * valueColWidth + 2,
@@ -461,7 +482,11 @@ export function generatePR(
 
   // Document number at bottom
   doc.setFontSize(baseFont);
-  doc.text(prReportResult[0].c0508numpr_bd, pageWidth - rightMargin - 20, 202);
+  doc.text(
+    prReportResult[0]?.c0508numpr_bd ?? "",
+    pageWidth - rightMargin - 20,
+    202
+  );
 
   return doc;
 }

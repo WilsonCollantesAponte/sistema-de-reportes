@@ -27,12 +27,20 @@ export default function ReportGenerator() {
   const [lugar, setLugar] = useState("");
   const [inicio, setInicio] = useState("0");
   const [fin, setFin] = useState("250");
+  const [lugarSearch, setLugarSearch] = useState("");
   const [contributors, setContributors] = useState<
     {
       result: string;
       c0505anio: string;
       c0001idlugar: string;
       c0001codpersona: string;
+    }[]
+  >([]);
+  const [bySearchResults, setBySearchResults] = useState<
+    {
+      idlugar_bd: string;
+      nombre_bd: string;
+      hr_bd: number;
     }[]
   >([]);
   const [year, setYear] = useState("2024");
@@ -82,7 +90,12 @@ export default function ReportGenerator() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ codContribuyente, tipo, year }),
+        body: JSON.stringify({
+          codContribuyente,
+          tipo,
+          year,
+          starWithLetter: !"0123456789".includes(lugarSearch[0]),
+        }),
       });
 
       if (!response.ok) throw new Error("Error generating report");
@@ -115,7 +128,7 @@ export default function ReportGenerator() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-900X">
+    <div className="min-h-screen bg-gray-900">
       <div className="border-b">
         <div className="container mx-auto px-4 py-2 flex justify-between items-center">
           <h1 className="text-lg font-bold">
@@ -237,8 +250,24 @@ export default function ReportGenerator() {
                     <Input
                       type="text"
                       className="h-8 text-sm"
-                      value={lugar}
-                      onChange={(e) => setLugar(e.target.value)}
+                      value={lugarSearch}
+                      onChange={(e) => {
+                        const { value } = e.target;
+
+                        setLugarSearch(value);
+                        if (value.length !== 0 && lugar !== "" && year !== "") {
+                          fetch(
+                            `/api/obtenerlugarespornombre?id_lugar=${lugar}&nombre_lugar=${value}&year=${year}`
+                          )
+                            .then((response) => response.json())
+                            .then((data) => {
+                              setBySearchResults(data);
+                            })
+                            .catch((error) => {
+                              console.error("Error fetching places:", error);
+                            });
+                        }
+                      }}
                     />
                     <Button
                       className="h-8 px-3 text-sm"
@@ -302,13 +331,19 @@ export default function ReportGenerator() {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="h-8 text-xs font-semibold">
-                      Año
+                      {"0123456789".includes(lugarSearch[0])
+                        ? "Año"
+                        : "idlugar_bd"}
                     </TableHead>
                     <TableHead className="h-8 text-xs font-semibold">
-                      c0001idlugar
+                      {"0123456789".includes(lugarSearch[0])
+                        ? "c0001idlugar"
+                        : "nombre_bd"}
                     </TableHead>
                     <TableHead className="h-8 text-xs font-semibold">
-                      c0001codpersona
+                      {"0123456789".includes(lugarSearch[0])
+                        ? "c0001codpersona"
+                        : "hr_bd"}
                     </TableHead>
                     <TableHead className="h-8 text-xs font-semibold">
                       HR - PU - PR - HRA - DAM - CDN - PAQUETE
@@ -322,6 +357,65 @@ export default function ReportGenerator() {
                         Cargando datos...
                       </TableCell>
                     </TableRow>
+                  ) : lugarSearch.length > 0 &&
+                    !"0123456789".includes(lugarSearch[0]) ? (
+                    bySearchResults.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center py-4">
+                          No se encontraron datos.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      bySearchResults.map((item, i) => (
+                        <TableRow key={i}>
+                          <TableCell className="h-8 text-sm py-2">
+                            {item.idlugar_bd}
+                          </TableCell>
+                          <TableCell className="h-8 text-sm py-2">
+                            {item.nombre_bd}
+                          </TableCell>
+                          <TableCell className="h-8 text-sm py-2">
+                            {item.hr_bd}
+                          </TableCell>
+                          <TableCell className="h-8 text-sm py-2">
+                            <div className="flex space-x-1">
+                              {[
+                                "HR",
+                                "PU",
+                                "PR",
+                                "HRA",
+                                "DAM",
+                                "CDN",
+                                "PAQUETE",
+                              ].map((tipo) => (
+                                <Button
+                                  key={tipo}
+                                  size="sm"
+                                  variant="outline"
+                                  className={`px-2 py-1 text-xs ${
+                                    tipo === "PAQUETE" ? "bg-blue-50" : ""
+                                  } w-16`}
+                                  onClick={() =>
+                                    handleGenerateReport(item.idlugar_bd, tipo)
+                                  }
+                                  disabled={
+                                    loadingReports[`${item.idlugar_bd}-${tipo}`]
+                                  }
+                                >
+                                  {loadingReports[
+                                    `${item.idlugar_bd}-${tipo}`
+                                  ] ? (
+                                    <Loader className="w-4 h-4 animate-spin" />
+                                  ) : (
+                                    tipo
+                                  )}
+                                </Button>
+                              ))}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )
                   ) : contributors.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={4} className="text-center py-4">
