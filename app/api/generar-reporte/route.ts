@@ -1,11 +1,12 @@
 import prisma from "@/db";
 import { generateCDN } from "@/lib/reports/cdn";
+import { generateDAM } from "@/lib/reports/dam";
 import { generateHR } from "@/lib/reports/hr";
 import { generateHRA } from "@/lib/reports/hra";
 import { generatePR } from "@/lib/reports/pr";
 import { generatePU } from "@/lib/reports/pu";
 import { jsPDF } from "jspdf";
-import { PDFDocument } from "pdf-lib"; // Importar pdf-lib
+import { PDFDocument } from "pdf-lib"; // Importar pdf-lib para fusionar pdf´s
 
 export async function POST(request: Request) {
   try {
@@ -19,7 +20,7 @@ export async function POST(request: Request) {
         c0001idlugar: string;
         c0001codpersona: string;
       }> = await prisma.$queryRaw`
-      select * from fncobtenerpaqueteporlugar(${searchText},0,5000)
+      select * from fncobtenerpaqueteporlugar(${searchText},0,5000) limit 1
     `;
 
       const pdfs: Array<Uint8Array<ArrayBufferLike>> = [];
@@ -326,6 +327,76 @@ async function createMergedPDF_paraUnContribudor(
     );
 
     pdfDocuments.push(hra); // Agregar el documento HRA al array
+  }
+
+  // DAM -------------------------------------
+  const damResult: Array<{ numdam: string; codcont: string }> =
+    await prisma.$queryRaw`
+      select * from fncobtenerdammasivoreporte(${searchText}, '3')
+    `;
+
+  // Logo de la municipalidad
+  // const logo = await prisma.$queryRaw`
+  //   select * from fncobtenerparametrosimagenparam('4','0') LIMIT 1
+  //   `;
+  // console.log({ logo: logo[0] });
+
+  // return Response.json("try");
+
+  console.log({ damResult });
+
+  const numdam = damResult[0]?.numdam;
+  if (!numdam) {
+    console.warn("DAM report number not found");
+  } else {
+    // eslint-disable-next-line
+    const dam_masivo_reporte: any = await prisma.$queryRaw`
+    select * from fncobtenerdammasivoreporte(${numdam},'C')
+    `;
+
+    console.log({ dam_masivo_reporte });
+
+    // eslint-disable-next-line
+    const determinacionarbitriosmunicipal: any = await prisma.$queryRaw`
+     select * from fncobtenerdeterminacionarbitriosmunicipal(${numdam},'R')
+    `;
+    console.log({ determinacionarbitriosmunicipal });
+
+    // eslint-disable-next-line
+    const determinacionarbitriotitularreporte: any = await prisma.$queryRaw`    
+    select * from fncobtenerdeterminacionarbitriotitularreporte(${numdam})
+    `;
+    console.log({ determinacionarbitriotitularreporte });
+
+    // eslint-disable-next-line
+    const determinacionarbitriodomiciliofiscaltitulardam: any =
+      await prisma.$queryRaw`
+    select * from fncobtenerdeterminacionarbitriodomiciliofiscaltitulardam(${numdam})
+    `;
+    console.log({ determinacionarbitriodomiciliofiscaltitulardam });
+
+    // eslint-disable-next-line
+    const determinacionarbitrioubicacionprediodam: any = await prisma.$queryRaw`
+    select * from fncobtenerdeterminacionarbitrioubicacionprediodam(${numdam})
+    `;
+    console.log({ determinacionarbitrioubicacionprediodam });
+
+    // eslint-disable-next-line
+    const determinacionarbitriousosprediosdam: any = await prisma.$queryRaw`
+    select * from fncobtenerdeterminacionarbitriousosprediosdam(${numdam})
+    `;
+    console.log({ determinacionarbitriousosprediosdam });
+
+    const dam = generateDAM(
+      dam_masivo_reporte,
+      determinacionarbitriosmunicipal,
+      determinacionarbitriotitularreporte,
+      determinacionarbitriodomiciliofiscaltitulardam
+      // determinacionarbitrioubicacionprediodam,
+      // determinacionarbitriousosprediosdam
+    );
+
+    pdfDocuments.push(dam); // Agregar el documento DAM al array
   }
 
   // Fusionar todos los documentos PDF
