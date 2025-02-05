@@ -96,11 +96,6 @@ async function createMergedPDF_paraUnContribudor(
       SELECT * FROM fncobtenerdatosportada(${searchText})
     `;
 
-  // const cartaResult = await prisma.$queryRaw`
-  //   SELECT * FROM fncobtenerdatosportada(${searchText})
-  // `;
-  // console.log({ cartaResult });
-
   const doc = generateCDN(portadaNotificacionResult, logo);
   pdfDocuments.push(doc); // Agregar el primer documento al array
 
@@ -113,8 +108,6 @@ async function createMergedPDF_paraUnContribudor(
       select * from fncobtenerhrmasivoreporte(${searchText},'3')
     `;
 
-  console.log({ hrResult });
-
   const numhr = hrResult[0]?.numhr;
   if (!numhr) {
     console.warn("HR report number not found");
@@ -125,35 +118,26 @@ async function createMergedPDF_paraUnContribudor(
       select * from fncobtenerreportehojaresumen(${numhr})
     `;
 
-    console.log({ hojaResumenResult });
-
     // eslint-disable-next-line
     const titularesResult: any = await prisma.$queryRaw`
       select * from fncobtenertitularreportehr(${numhr})
     `;
-
-    console.log({ titularesResult });
 
     // eslint-disable-next-line
     const domiciliosResult: any = await prisma.$queryRaw`
       select * from fncobtenerdomiciliofiscalcadena(${codContribuyente})
     `;
 
-    console.log({ domiciliosResult });
-
     // eslint-disable-next-line
     const prediosResult: any = await prisma.$queryRaw`
       select * from fncobtenerreportehrvaluopredios(${numhr})
     `;
-
-    console.log({ prediosResult });
 
     // falta hacerlo dinámico
     // eslint-disable-next-line
     const footerResult: any = await prisma.$queryRaw`
       select * from fncobtenerimpuestoxtramosvaluo('8753.56','2024')
         `;
-    console.log({ footerResult });
 
     const hr = generateHR({
       hrResult,
@@ -351,16 +335,6 @@ async function createMergedPDF_paraUnContribudor(
       select * from fncobtenerdammasivoreporte(${searchText}, '3')
     `;
 
-  // Logo de la municipalidad
-  // const logo = await prisma.$queryRaw`
-  //   select * from fncobtenerparametrosimagenparam('4','0') LIMIT 1
-  //   `;
-  // console.log({ logo: logo[0] });
-
-  // return Response.json("try");
-
-  console.log({ damResult });
-
   const numdam = damResult[0]?.numdam;
   if (!numdam) {
     console.warn("DAM report number not found");
@@ -370,38 +344,31 @@ async function createMergedPDF_paraUnContribudor(
     select * from fncobtenerdammasivoreporte(${numdam},'C')
     `;
 
-    console.log({ dam_masivo_reporte });
-
     // eslint-disable-next-line
     const determinacionarbitriosmunicipal: any = await prisma.$queryRaw`
      select * from fncobtenerdeterminacionarbitriosmunicipal(${numdam},'R')
     `;
-    console.log({ determinacionarbitriosmunicipal });
 
     // eslint-disable-next-line
     const determinacionarbitriotitularreporte: any = await prisma.$queryRaw`
     select * from fncobtenerdeterminacionarbitriotitularreporte(${numdam})
     `;
-    console.log({ determinacionarbitriotitularreporte });
 
     // eslint-disable-next-line
     const determinacionarbitriodomiciliofiscaltitulardam: any =
       await prisma.$queryRaw`
     select * from fncobtenerdeterminacionarbitriodomiciliofiscaltitulardam(${numdam})
     `;
-    console.log({ determinacionarbitriodomiciliofiscaltitulardam });
 
     // eslint-disable-next-line
     const determinacionarbitrioubicacionprediodam: any = await prisma.$queryRaw`
     select * from fncobtenerdeterminacionarbitrioubicacionprediodam(${numdam})
     `;
-    console.log({ determinacionarbitrioubicacionprediodam });
 
     // eslint-disable-next-line
     const determinacionarbitriousosprediosdam: any = await prisma.$queryRaw`
     select * from fncobtenerdeterminacionarbitriousosprediosdam(${numdam})
     `;
-    console.log({ determinacionarbitriousosprediosdam });
 
     const dam = generateDAM(
       dam_masivo_reporte,
