@@ -11,7 +11,8 @@ export function generateCDN(
     numhr: string;
     codigo_bd: string;
     anio_bd: number;
-  }>
+  }>,
+  logo: Uint8Array
 ): jsPDF {
   const data = portadaNotificacionResult[0];
   const doc = new jsPDF({
@@ -24,24 +25,17 @@ export function generateCDN(
   doc.setFontSize(5); // Reducido globalmente
 
   // Agregar logo (reducido)
-  doc.addImage(
-    "https://res.cloudinary.com/dputhhzyb/image/upload/v1738452256/images_tfpg8d.jpg",
-    "JPEG",
-    115,
-    3,
-    25,
-    25
-  );
+  doc.addImage(logo, "JPEG", 115, 10, 23, 23);
 
   // Título (ligeramente reducido)
   doc.setFontSize(7);
-  doc.text(`CARGO DE NOTIFICACION N° ${data.numhr}`, 60, 8, {
+  doc.text(`CARGO DE NOTIFICACION N° ${data.numhr ?? ""}`, 60, 8, {
     align: "center",
   });
   doc.setFontSize(5);
 
   // Código en la esquina superior derecha
-  doc.text(`(CODIGO: ${data.codigo_bd.trim()})`, 115, 8);
+  doc.text(`(CODIGO: ${data.codigo_bd?.trim() ?? ""})`, 115, 8);
 
   // Sección A con formato exacto de cajas (compactado)
   doc.text("A) FECHA Y HORA DE NOTIFICACION", 10, 12);
@@ -59,7 +53,6 @@ export function generateCDN(
   doc.rect(70, 14, 4, 3);
   doc.rect(74, 14, 4, 3);
 
-  // HORA
   doc.rect(15, 19, 15, 3);
   doc.text("HORA", 17, 21);
   doc.rect(30, 19, 4, 3);
@@ -79,10 +72,10 @@ export function generateCDN(
   // Sección B - Espaciado reducido
   doc.text("B) IDENTIFICACION DE LA(S) PERSONA(S) NOTIFICADA(S)", 10, 26);
   doc.text("CONTRIBUYENTE", 10, 29);
-  doc.text(`:${data.nombrecontrib_bd}`, 40, 29);
+  doc.text(`:${data.nombrecontrib_bd ?? ""}`, 40, 29);
   doc.text("DOMICILIO FISCAL", 10, 32);
-  doc.text(`:${data.calle_bd} ${data.direccion_bd}`, 40, 32);
-  doc.text(`${data.distrito_bd}`, 40, 35);
+  doc.text(`:${data.calle_bd ?? ""} ${data.direccion_bd ?? ""}`, 40, 32);
+  doc.text(`${data.distrito_bd ?? ""}`, 40, 35);
 
   // Sección C - Espaciado reducido
   doc.text("C) IDENTIFICACION DEL RECEPTOR", 10, 38);
@@ -301,8 +294,8 @@ export function generateCDN(
 
   doc.text("1", 13, dataY + 3);
   doc.text("DJ Predial y Arbitrios", 20, dataY + 3);
-  doc.text("202404198", 57, dataY + 3);
-  doc.text("2024", 87, dataY + 3);
+  doc.text(`${data.numhr ?? ""}`, 57, dataY + 3);
+  doc.text(`${data.anio_bd ?? ""}`, 87, dataY + 3);
   doc.text("Declar. Jurada Predial y Arbitrios", 102, dataY + 3);
 
   // Sección de firmas

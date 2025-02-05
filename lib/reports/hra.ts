@@ -127,7 +127,7 @@ export function generateHRA(
   doc.text(hraResult[0]?.numhra ?? "", margin + contentWidth / 2 + 2, boxY + 8);
   doc.text("FECHA DE EMISIÓN:", margin + contentWidth / 2 + 30, boxY - 2);
   doc.text(
-    new Date().toLocaleDateString(),
+    hraHojaResumenResult[0]?.d0507fecha_bd?.toLocaleDateString() ?? "",
     margin + contentWidth / 2 + 25 + 30,
     boxY - 2
   );
@@ -255,23 +255,23 @@ export function generateHRA(
       // Arbitrios
       [limpiezaNum, areasverdesNum, serenazgoNum].forEach((value) => {
         doc.rect(xPos, rowY, arbitrioWidth, 5);
-        doc.text(String(value.toFixed(2)), xPos + 1, rowY + 3.5);
+        doc.text(value.toFixed(2), xPos + 1, rowY + 3.5);
         xPos += arbitrioWidth;
       });
 
       // Total Predio
       doc.rect(xPos, rowY, colWidths.totalPredio, 5);
-      doc.text(String(totalPredio.toFixed(2)), xPos + 1, rowY + 3.5);
+      doc.text(totalPredio.toFixed(2), xPos + 1, rowY + 3.5);
       xPos += colWidths.totalPredio;
 
       // Gastos
       doc.rect(xPos, rowY, colWidths.gastos, 5);
-      doc.text(String(gastosNum.toFixed(2)), xPos + 1, rowY + 3.5);
+      doc.text(gastosNum.toFixed(2), xPos + 1, rowY + 3.5);
       xPos += colWidths.gastos;
 
       // Total Final
       doc.rect(xPos, rowY, colWidths.totalFinal, 5);
-      doc.text(String(totalWithGastos.toFixed(2)), xPos + 1, rowY + 3.5);
+      doc.text(totalWithGastos.toFixed(2), xPos + 1, rowY + 3.5);
     });
   }
 
@@ -307,18 +307,10 @@ export function generateHRA(
   xPos = margin;
   const liquidacionData = [
     String(hraHojaResumenResult[0]?.n0507numpredios_bd ?? 0),
-    String(
-      Number(hraHojaResumenResult[0]?.n0507arbitriototal_bd ?? 0).toFixed(2)
-    ),
-    String(Number(hraHojaResumenResult[0]?.n0507gastos_bd ?? 0).toFixed(2)),
-    String(
-      Number(hraHojaResumenResult[0]?.n0507arbitrioredond_bd ?? 0).toFixed(2)
-    ),
-    String(
-      Number(totalArbitriosMunicipales.totalArbitriosMunicipales ?? 0).toFixed(
-        2
-      )
-    ),
+    Number(hraHojaResumenResult[0]?.n0507arbitriototal_bd ?? 0).toFixed(2),
+    Number(hraHojaResumenResult[0]?.n0507gastos_bd ?? 0).toFixed(2),
+    Number(hraHojaResumenResult[0]?.n0507arbitrioredond_bd ?? 0).toFixed(2),
+    Number(totalArbitriosMunicipales.totalArbitriosMunicipales ?? 0).toFixed(2),
   ];
 
   // eslint-disable-next-line
@@ -348,7 +340,7 @@ export function generateHRA(
   // Tabla mensual
   const mensualTableY = mensualY + 2;
   const monthWidth = contentWidth / 6;
-  const totalAmount = Number.parseFloat(
+  const totalAmount = Number(
     totalArbitriosMunicipales.totalArbitriosMunicipales ?? 0
   );
   const monthlyAmount = Number((totalAmount / 12).toFixed(2));
@@ -386,7 +378,11 @@ export function generateHRA(
   // Nota y número de documento
   doc.setFontSize(smallFont);
   doc.text("(*)Incluye Gastos de Emision", margin, secondRowY + 15);
-  doc.text(hraResult[0].numhra ?? "", pageWidth - margin - 15, secondRowY + 15);
+  doc.text(
+    hraResult[0]?.numhra ?? "",
+    pageWidth - margin - 15,
+    secondRowY + 15
+  );
 
   return doc;
 }

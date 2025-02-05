@@ -103,7 +103,7 @@ export const generateHR = ({
   doc.setFontSize(8);
   doc.setFont("helvetica", "bold");
   doc.text("EJERCICIO FISCAL", 37.5, 60, { align: "center" });
-  doc.text(hojaResumenResult[0].anio ?? "", 37.5, 65, { align: "center" });
+  doc.text(hojaResumenResult[0]?.anio ?? "", 37.5, 65, { align: "center" });
 
   // Add HR title
   doc.setFontSize(24);
@@ -122,14 +122,14 @@ export const generateHR = ({
   doc.setFont("helvetica", "bold");
   doc.text("N° DE REFERENCIA:", 102, 59);
   doc.setFont("helvetica", "normal");
-  doc.text(hrResult[0].numhr ?? "", 142, 59, { align: "right" });
+  doc.text(hrResult[0]?.numhr ?? "", 142, 59, { align: "right" });
 
   // Date box
   doc.rect(100, 62, 45, 6);
   doc.setFont("helvetica", "bold");
   doc.text("FECHA DE EMISIÓN:", 102, 65);
   doc.setFont("helvetica", "normal");
-  doc.text(hojaResumenResult[0].fecha?.toLocaleDateString() ?? "", 142, 65, {
+  doc.text(hojaResumenResult[0]?.fecha?.toLocaleDateString() ?? "", 142, 65, {
     align: "right",
   });
 
@@ -152,9 +152,9 @@ export const generateHR = ({
 
   // Contributor data
   doc.setFont("helvetica", "normal");
-  doc.text(titularesResult[0].nombre_bd ?? "", 16, 81);
-  doc.text(titularesResult[0].numero_bd ?? "", 97, 81);
-  doc.text(titularesResult[0].id_persona_bd ?? "", 117, 81);
+  doc.text(titularesResult[0]?.nombre_bd ?? "", 16, 81);
+  doc.text(titularesResult[0]?.numero_bd ?? "", 97, 81);
+  doc.text(titularesResult[0]?.id_persona_bd ?? "", 117, 81);
 
   // Fiscal address
   doc.rect(15, 83, 130, 8);
@@ -162,7 +162,7 @@ export const generateHR = ({
   doc.setFont("helvetica", "bold");
   doc.text("DOMICILIO FISCAL", 16, 86);
   doc.setFont("helvetica", "normal");
-  doc.text(domiciliosResult[0].domicilio ?? "", 16, 89, { maxWidth: 127 });
+  doc.text(domiciliosResult[0]?.domicilio ?? "", 16, 89, { maxWidth: 127 });
 
   // Declared properties section
   doc.setFont("helvetica", "bold");
@@ -210,7 +210,7 @@ export const generateHR = ({
   doc.setFontSize(5);
   doc.setFont("helvetica", "bold");
   doc.text("BASE IMPONIBLE (S/ )", 95, 147);
-  doc.text(hojaResumenResult[0].baseimp?.toFixed(2) ?? "", 142, 147, {
+  doc.text(hojaResumenResult[0]?.baseimp?.toFixed(2) ?? "", 142, 147, {
     align: "right",
   });
 
@@ -241,23 +241,23 @@ export const generateHR = ({
   // Values
   doc.setFont("helvetica", "normal");
   const yPos = 162;
-  doc.text(hojaResumenResult[0].numpredios?.toString() ?? "", 22.5, yPos, {
+  doc.text(hojaResumenResult[0]?.numpredios?.toString() ?? "", 22.5, yPos, {
     align: "center",
   });
-  doc.text(footerResult[0].descbaseuit_bd?.trim() ?? "", 32, yPos);
-  doc.text(footerResult[0].descbasesoles_bd?.trim() ?? "", 52.5, yPos);
+  doc.text(footerResult[0]?.descbaseuit_bd?.trim() ?? "", 32, yPos);
+  doc.text(footerResult[0]?.descbasesoles_bd?.trim() ?? "", 52.5, yPos);
   doc.text(
-    ((footerResult[0].tasa_bd * 100)?.toFixed(1) ?? "") + "%",
+    ((Number(footerResult[0]?.tasa_bd ?? 0) * 100)?.toFixed(1) ?? "") + "%",
     82.5,
     yPos,
     {
       align: "center",
     }
   );
-  doc.text(footerResult[0].base_bd?.toFixed(2) ?? "", 105, yPos, {
+  doc.text(footerResult[0]?.base_bd?.toFixed(2) ?? "", 105, yPos, {
     align: "center",
   });
-  doc.text(footerResult[0].impuesto_bd?.toFixed(2) ?? "", 125, yPos, {
+  doc.text(footerResult[0]?.impuesto_bd?.toFixed(2) ?? "", 125, yPos, {
     align: "center",
   });
 
@@ -288,15 +288,15 @@ export const generateHR = ({
   doc.rect(90, 174, 55, 5);
 
   doc.text("IMPUESTO ANUAL CON REDONDEO", 92, 167);
-  doc.text(hojaResumenResult[0].impuesto?.toFixed(2) ?? "", 142, 167, {
+  doc.text(hojaResumenResult[0]?.impuesto?.toFixed(2) ?? "", 142, 167, {
     align: "right",
   });
   doc.text("GASTOS DE EMISION(S/)", 92, 172);
-  doc.text(hojaResumenResult[0].gastos?.toFixed(2) ?? "", 142, 172, {
+  doc.text(hojaResumenResult[0]?.gastos?.toFixed(2) ?? "", 142, 172, {
     align: "right",
   });
   doc.text("TOTAL IMPORTE ANUAL (S/)", 92, 177);
-  doc.text(hojaResumenResult[0].total?.toFixed(2) ?? "", 142, 177, {
+  doc.text(hojaResumenResult[0]?.total?.toFixed(2) ?? "", 142, 177, {
     align: "right",
   });
 
@@ -322,22 +322,22 @@ export const generateHR = ({
     {
       numero: "1ra Cuota",
       vencimiento: "28/02/2024",
-      importe: hojaResumenResult[0].total / 4,
+      importe: Number(hojaResumenResult[0]?.total ?? 0) / 4,
     },
     {
       numero: "2da Cuota",
       vencimiento: "31/05/2024",
-      importe: hojaResumenResult[0].total / 4,
+      importe: Number(hojaResumenResult[0]?.total ?? 0) / 4,
     },
     {
       numero: "3ra Cuota",
       vencimiento: "31/08/2024",
-      importe: hojaResumenResult[0].total / 4,
+      importe: Number(hojaResumenResult[0]?.total ?? 0) / 4,
     },
     {
       numero: "4ta Cuota",
       vencimiento: "30/11/2024",
-      importe: hojaResumenResult[0].total / 4,
+      importe: Number(hojaResumenResult[0]?.total ?? 0) / 4,
     },
   ];
 
@@ -365,11 +365,11 @@ export const generateHR = ({
   // Document number at bottom right
   doc.setFontSize(11);
   doc.setFont("helvetica", "bold");
-  doc.text(hrResult[0].numhr ?? "", 145, 208, { align: "right" });
+  doc.text(hrResult[0]?.numhr ?? "", 145, 208, { align: "right" });
 
   // Save the PDF
   // try {
-  //   const fileName = `HR-${titularesResult[0].id_persona_bd}.pdf`;
+  //   const fileName = `HR-${titularesResult[0]?.id_persona_bd ?? ""}.pdf`;
   //   const pdfBuffer = doc.output("arraybuffer");
   //   return { success: true, fileName, pdfBuffer };
   // } catch (err) {

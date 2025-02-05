@@ -1,37 +1,35 @@
 import { jsPDF } from "jspdf";
 
-// Keeping all the original interfaces
 interface PUResult {
-  numpu: string;
-  codcont: string;
+  numpu?: string;
 }
 
 interface PUReportResult {
-  fecha: string;
-  c0500anio: string;
-  c0500id_uni_cat: string;
-  n0500valuototal: number;
-  n0500porctit: number;
+  fecha?: string;
+  c0500anio?: string;
+  c0500id_uni_cat?: string;
+  n0500valuototal?: number;
+  n0500porctit?: number;
 }
 
 interface PUTitularesResult {
-  nombre_bd: string;
-  numero_bd: string;
-  id_persona_bd: string;
+  nombre_bd?: string;
+  numero_bd?: string;
+  id_persona_bd?: string;
 }
 
 interface PUUbicacionesResult {
-  ubicacion: string;
+  ubicacion?: string;
 }
 
 interface PUDatosPredioResult {
-  condicion: string;
-  desc_uso: string;
-  condicion_pro: string;
-  n0500porctit: number;
-  n0500areaterreno: number;
-  n0500arancel: number;
-  n0500valorterreno: number;
+  condicion?: string;
+  desc_uso?: string;
+  condicion_pro?: string;
+  n0500porctit?: number;
+  n0500areaterreno?: number;
+  n0500arancel?: number;
+  n0500valorterreno?: number;
 }
 
 interface PUConstruccionesResult {
@@ -66,6 +64,7 @@ export function generatePU(
   puDatosPredioResult: PUDatosPredioResult[] = [],
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   puConstruccionesResult: PUConstruccionesResult[] = [],
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   puOtrasConstruccionesResult: PUOtrasConstruccionesResult[] = []
 ): jsPDF {
   const doc = new jsPDF({
@@ -73,260 +72,281 @@ export function generatePU(
     unit: "mm",
   });
 
-  // Configuración inicial - fuentes más pequeñas
-  const baseFont = 5; // Fuente base reducida
-  const denseFont = 4.5; // Fuente para áreas densas
-  const ultraDenseFont = 4; // Fuente para áreas muy densas
-  const lineWidth = 0.1; // Líneas más delgadas
-
-  doc.setLineWidth(lineWidth);
-
-  // Encabezado principal (mantiene tamaños originales)
+  // Header Section
+  doc.setFontSize(11);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.text("DECLARACIÓN JURADA DEL", 74, 12, { align: "center" });
-  doc.text("IMPUESTO PREDIAL", 74, 18, { align: "center" });
-  doc.text("PU", 74, 25, { align: "center" });
-  doc.setFontSize(10);
-  doc.text("PREDIO URBANO", 74, 30, { align: "center" });
+  doc.text("DECLARACIÓN JURADA DEL", 74, 25, { align: "center" });
+  doc.text("IMPUESTO PREDIAL", 74, 32, { align: "center" });
 
-  // Información municipal - compacta
-  doc.setFontSize(denseFont);
+  // PU Section
+  doc.setFontSize(20);
+  doc.text("PU", 74, 45, { align: "center" });
+  doc.setFontSize(11);
+  doc.text("PREDIO URBANO", 74, 55, { align: "center" });
+
+  // Municipality Info - Adjusted to align with PU
+  doc.setFontSize(6);
   doc.setFont("helvetica", "normal");
-  doc.text("MUNICIPALIDAD DISTRITAL VEINTISÉIS DE", 10, 25);
-  doc.text("OCTUBRE", 10, 28);
-  doc.text("Av. Prolongacion Grau - Mz. N Lote 1 A.H. Las", 10, 31);
-  doc.text("Capullanas - Veintiseis de Octubre", 10, 34);
-  doc.text("RUC:20529997401", 10, 37);
+  doc.text("MUNICIPALIDAD DISTRITAL VEINTISÉIS DE", 5, 42);
+  doc.text("OCTUBRE", 5, 46);
+  doc.text("Av. Prolongacion Grau - Mz. N Lote 1 A.H. Las", 5, 50);
+  doc.text("Capullanas - Veintiseis de Octubre", 5, 54);
+  doc.text("RUC:20529997401", 5, 58);
 
-  // Información de página - compacta
-  doc.text("Pag 1 de 1", 120, 8);
+  // Page info - Moved more towards the left and aligned with PU
+  doc.text("Pag 1 de 1", 120, 42);
   if (puResult.length > 0) {
-    doc.text(`N° DE REFERENCIA: ${puResult[0].numpu || ""}`, 120, 11);
-    const fecha = new Date(puReportResult[0]?.fecha || "");
-    doc.text(`FECHA DE EMISIÓN: ${fecha.toLocaleDateString()}`, 120, 14);
+    doc.text(`N° DE REFERENCIA: ${puResult[0].numpu || ""}`, 110, 46);
+    if (puReportResult.length > 0) {
+      const fecha = new Date(puReportResult[0].fecha || "");
+      doc.text(`FECHA DE EMISIÓN: ${fecha.toLocaleDateString()}`, 110, 50);
+    }
   }
 
-  // Ejercicio fiscal - compacto
-  const fiscalY = 40;
-  doc.rect(10, fiscalY, 40, 8); // Altura reducida
-  doc.setFontSize(denseFont);
-  doc.text("EJERCICIO FISCAL", 30, fiscalY + 3, { align: "center" });
+  // Adjusted boxY to accommodate the new text positions
+  const boxY = 60;
+
+  // Fiscal Year and Cadastral Unit boxes
+  doc.rect(5, boxY, 45, 10);
+  doc.setFontSize(7);
+  doc.setFont("helvetica", "bold");
+  doc.text("EJERCICIO FISCAL", 27.5, boxY + 4, { align: "center" });
+
   if (puReportResult.length > 0) {
-    doc.text(puReportResult[0].c0500anio || "", 30, fiscalY + 6, {
+    doc.setFont("helvetica", "normal");
+    doc.text(puReportResult[0].c0500anio || "", 27.5, boxY + 8, {
       align: "center",
     });
   }
 
-  // Unidad catastral - compacta
-  doc.rect(52, fiscalY, 86, 8);
-  doc.text("UNIDAD CATASTRAL", 95, fiscalY + 3, { align: "center" });
+  doc.rect(55, boxY, 88, 10);
+  doc.setFont("helvetica", "bold");
+  doc.text("UNIDAD CATASTRAL", 99, boxY + 4, { align: "center" });
+
   if (puReportResult.length > 0) {
-    doc.text(puReportResult[0].c0500id_uni_cat || "", 95, fiscalY + 6, {
+    doc.setFont("helvetica", "normal");
+    doc.text(puReportResult[0].c0500id_uni_cat || "", 99, boxY + 8, {
       align: "center",
     });
   }
 
-  // Datos del contribuyente - compacto
-  const contribY = 50;
-  doc.setFontSize(baseFont);
-  doc.text("DATOS DEL CONTRIBUYENTE", 10, contribY);
-  doc.line(10, contribY + 1, 138, contribY + 1);
+  // Taxpayer Data
+  doc.setFontSize(7);
+  doc.setFont("helvetica", "bold");
+  doc.text("DATOS DEL CONTRIBUYENTE", 5, boxY + 16);
+  // doc.line(5, boxY + 16, 143, boxY + 16);
 
-  // Tabla de contribuyente - compacta
-  doc.setFontSize(denseFont);
-  doc.text("APELLIDOS Y NOMBRES / RAZÓN SOCIAL", 11, contribY + 3);
-  doc.text("DNI / CIP / RUC", 100, contribY + 3);
-  doc.text("CÓDIGO", 125, contribY + 3);
+  // Taxpayer Table
+  doc.rect(5, boxY + 18, 138, 8);
+  doc.setFontSize(5);
+  doc.text("APELLIDOS Y NOMBRES / RAZÓN SOCIAL", 7, boxY + 21);
+  doc.text("DNI / CIP / RUC", 95, boxY + 21);
+  doc.text("CÓDIGO", 120, boxY + 21);
 
   if (puTitularesResult.length > 0) {
-    const titular = puTitularesResult[0];
-    doc.text(titular.nombre_bd?.trim() || "", 11, contribY + 6);
-    doc.text(titular.numero_bd?.trim() || "", 100, contribY + 6);
-    doc.text(titular.id_persona_bd || "", 125, contribY + 6);
+    doc.setFont("helvetica", "normal");
+    doc.text(puTitularesResult[0].nombre_bd?.trim() || "", 7, boxY + 24);
+    doc.text(puTitularesResult[0].numero_bd?.trim() || "", 95, boxY + 24);
+    doc.text(puTitularesResult[0].id_persona_bd || "", 120, boxY + 24);
   }
 
-  // Datos del predio - compacto
-  const predioY = 58;
-  doc.setFontSize(baseFont);
-  doc.text("DATOS RELATIVOS DEL PREDIO", 10, predioY);
-  doc.line(10, predioY + 1, 138, predioY + 1);
-  doc.text("UBICACIÓN DEL PREDIO", 10, predioY + 3);
+  // Property Data
+  doc.setFontSize(7);
+  doc.setFont("helvetica", "bold");
+  doc.text("DATOS RELATIVOS DEL PREDIO", 5, boxY + 29);
+  // doc.line(5, boxY + 29, 143, boxY + 29);
+
+  doc.setFontSize(5);
+  doc.text("UBICACIÓN DEL PREDIO", 5, boxY + 32);
+  doc.rect(5, boxY + 33, 138, 6);
 
   if (puUbicacionesResult.length > 0) {
-    doc.rect(10, predioY + 4, 128, 6);
-    doc.setFontSize(denseFont);
-    doc.text(puUbicacionesResult[0].ubicacion?.trim() || "", 11, predioY + 8);
+    doc.setFont("helvetica", "normal");
+    doc.text(puUbicacionesResult[0].ubicacion?.trim() || "", 7, boxY + 37);
   }
 
-  // Tabla de características - compacta
-  const caracY = 68;
-  const headers = [
-    { text: "TIPO DE EDIFICACIÓN", width: 40 },
-    { text: "USO", width: 40 },
-    { text: "CONDICIÓN DE PROPIEDAD", width: 40 },
-    { text: "%PROPIEDAD", width: 20 },
-  ];
+  // Property Characteristics Table
+  const caracY = boxY + 40;
+  doc.rect(5, caracY, 45, 5);
+  doc.rect(50, caracY, 45, 5);
+  doc.rect(95, caracY, 35, 5);
+  doc.rect(130, caracY, 13, 5);
 
-  doc.setFontSize(ultraDenseFont);
-  let currentX = 10;
-  headers.forEach((header) => {
-    doc.rect(currentX, caracY, header.width, 6);
-    doc.text(header.text, currentX + 1, caracY + 4);
-    currentX += header.width;
-  });
+  doc.setFontSize(4.5);
+  doc.text("TIPO DE EDIFICACIÓN", 7, caracY + 3);
+  doc.text("USO", 52, caracY + 3);
+  doc.text("CONDICIÓN DE PROPIEDAD", 97, caracY + 3);
+  doc.text("%PROPIEDAD", 132, caracY + 3);
 
   if (puDatosPredioResult.length > 0) {
     const datos = puDatosPredioResult[0];
-    currentX = 10;
-    headers.forEach((header, index) => {
-      doc.rect(currentX, caracY + 6, header.width, 6);
-      let texto = "";
-      switch (index) {
-        case 0:
-          texto = datos.condicion?.trim() || "";
-          break;
-        case 1:
-          texto = datos.desc_uso?.trim() || "";
-          break;
-        case 2:
-          texto = datos.condicion_pro?.trim() || "";
-          break;
-        case 3:
-          texto = Number(datos.n0500porctit || 0).toFixed(3);
-          break;
-      }
-      doc.text(texto, currentX + 1, caracY + 10);
-      currentX += header.width;
-    });
+    doc.rect(5, caracY + 5, 45, 5);
+    doc.rect(50, caracY + 5, 45, 5);
+    doc.rect(95, caracY + 5, 35, 5);
+    doc.rect(130, caracY + 5, 13, 5);
+
+    doc.setFont("helvetica", "normal");
+    doc.text(datos.condicion?.trim() || "", 7, caracY + 8);
+    doc.text(datos.desc_uso?.trim() || "", 52, caracY + 8);
+    doc.text(datos.condicion_pro?.trim() || "", 97, caracY + 8);
+    doc.text((datos.n0500porctit || 0).toFixed(2), 132, caracY + 8);
   }
 
-  // Tabla de terreno - compacta
+  // Land Area Table
   const terrenoY = caracY + 12;
-  const terrenoHeaders = [
-    { text: "ÁREA DE TERRENO (m2)", width: 60 },
-    { text: "ARANCEL", width: 40 },
-    { text: "VALOR DE TERRENO S/", width: 40 },
-  ];
+  doc.rect(5, terrenoY, 65, 5);
+  doc.rect(70, terrenoY, 40, 5);
+  doc.rect(110, terrenoY, 33, 5);
 
-  currentX = 10;
-  terrenoHeaders.forEach((header) => {
-    doc.rect(currentX, terrenoY, header.width, 6);
-    doc.text(header.text, currentX + 1, terrenoY + 4);
-    currentX += header.width;
-  });
+  doc.text("ÁREA DE TERRENO (m2)", 7, terrenoY + 3);
+  doc.text("ARANCEL", 72, terrenoY + 3);
+  doc.text("VALOR DE TERRENO S/.", 112, terrenoY + 3);
 
   if (puDatosPredioResult.length > 0) {
     const datos = puDatosPredioResult[0];
-    currentX = 10;
-    [
-      Number(datos.n0500areaterreno || 0).toFixed(2),
-      Number(datos.n0500arancel || 0).toFixed(2),
-      Number(datos.n0500valorterreno || 0).toFixed(2),
-    ].forEach((valor, index) => {
-      doc.rect(currentX, terrenoY + 6, terrenoHeaders[index].width, 6);
-      doc.text(valor, currentX + 1, terrenoY + 10);
-      currentX += terrenoHeaders[index].width;
+    doc.rect(5, terrenoY + 5, 65, 5);
+    doc.rect(70, terrenoY + 5, 40, 5);
+    doc.rect(110, terrenoY + 5, 33, 5);
+
+    doc.text((datos.n0500areaterreno || 0).toFixed(2), 65, terrenoY + 8, {
+      align: "right",
+    });
+    doc.text((datos.n0500arancel || 0).toFixed(2), 105, terrenoY + 8, {
+      align: "right",
+    });
+    doc.text((datos.n0500valorterreno || 0).toFixed(2), 138, terrenoY + 8, {
+      align: "right",
     });
   }
 
-  // OTRAS INSTALACIONES - ultra compacta
-  const instY = 90;
-  doc.setFontSize(baseFont);
-  doc.text("OTRAS INSTALACIONES", 10, instY);
+  // Other Installations Section
+  const instY = terrenoY + 33;
+  doc.setFontSize(7);
+  doc.setFont("helvetica", "bold");
+  doc.text("OTRAS INSTALACIONES", 5, instY + 1.5);
+  // doc.line(5, instY + 1, 143, instY + 1);
 
-  const tableY = instY + 2;
-  doc.rect(10, tableY, 128, 12);
+  // Tabla principal
+  const tableY = instY + 3;
+  doc.rect(5, tableY, 138, 32); // Marco principal
 
-  // Columnas con espaciado mínimo
-  const instColumns = [
-    { text: "CÓDIGO", width: 10 },
-    { text: "MATERIAL", width: 12 },
-    { text: "ESTADO DE\nCONSERVACIÓN", width: 15 },
-    { text: "ANTIGÜEDAD", width: 12 },
-    { text: "DESCRIPCIÓN", width: 30 },
-    { text: "METRADO", width: 12 },
-    { text: "VALOR\nUNITARIOS", width: 12 },
-    { text: "VALOR DEPRECIADO", subColumns: true, width: 25 },
+  // Definir columnas con sus anchos exactos (reducidos)
+  const cols = [
+    { x: 5, width: 8, text: "CÓDIGO" },
+    { x: 13, width: 8, text: "MATERIAL" },
+    { x: 21, width: 12, text: "ESTADO DE\nCONSERVACIÓN" },
+    { x: 33, width: 10, text: "ANTIGÜEDAD" },
+    { x: 43, width: 42, text: "DESCRIPCIÓN", horizontal: true },
+    { x: 85, width: 12, text: "METRADO" },
+    { x: 97, width: 15, text: "VALOR\nUNITARIOS M2" },
+    { x: 112, width: 16, text: "VALOR\nDEPRECIADO" }, // Columna compuesta
     {
-      text: "VALOR DE OBRAS\nCOMPLEMENTARIAS Y/O\nINSTALACIONES FIJAS Y\nPERMANENTES S/. (VOI)",
-      width: 25,
+      x: 128,
+      width: 15,
+      text: "VALOR DE OBRAS\nCOMPLEMENTARIAS\nY/O\nINSTALACIONES FIJAS\nY PERMANENTES\nS/. (VOI)",
     },
   ];
 
-  let xPos = 10;
-  doc.setFontSize(ultraDenseFont);
-  instColumns.forEach((col, index) => {
-    if (index > 0) doc.line(xPos, tableY, xPos, tableY + 12);
-
-    if (col.subColumns) {
-      doc.text(col.text, xPos + 1, tableY + 3);
-      doc.line(xPos + 12, tableY + 4, xPos + col.width, tableY + 4);
-      doc.text("%", xPos + 2, tableY + 6);
-      doc.text("VALOR S/.", xPos + 14, tableY + 6);
-    } else {
-      doc.text(col.text, xPos + 1, tableY + 3);
+  // Dibujar líneas verticales y headers
+  doc.setFontSize(4.5);
+  cols.forEach((col, i) => {
+    // Línea vertical
+    if (i > 0) {
+      doc.line(col.x, tableY, col.x, tableY + 32);
     }
-    xPos += col.width;
+
+    // Texto del header
+    if (col.horizontal) {
+      doc.text(col.text, col.x + col.width / 2, tableY + 4, {
+        align: "center",
+      });
+    } else {
+      doc.text(col.text, col.x + 4, tableY + 19, { angle: 90 });
+    }
   });
 
-  if (puOtrasConstruccionesResult.length > 0) {
-    const otras = puOtrasConstruccionesResult[0];
-    doc.text(otras.ant?.toString() || "", 35, tableY + 9);
-    doc.text(Number(otras.n0502prod_total || 0).toFixed(2), 85, tableY + 9);
-    doc.text(Number(otras.valorunitario || 0).toFixed(2), 97, tableY + 9);
-    doc.text(otras.depreciacion?.toString() || "", 110, tableY + 9);
-    doc.text(Number(otras.valor || 0).toFixed(2), 125, tableY + 9);
-  }
-  doc.text("Total", 100, tableY + 11);
+  // Línea horizontal que divide headers de valores
+  doc.line(5, tableY + 20, 143, tableY + 20);
 
-  // DETERMINACIÓN DEL VALOR DEL PREDIO - compacto
-  const valueY = 106;
-  doc.setFontSize(baseFont);
-  doc.text("DETERMINACIÓN DEL VALOR DEL PREDIO (S/.)", 10, valueY);
+  // Manejo especial para VALOR DEPRECIADO
+  doc.line(112 + 8, tableY, 112 + 8, tableY + 32); // Línea divisoria entre % y VALOR S/.
+  doc.text("%", 112 + 4, tableY + 15, { angle: 90 });
+  doc.text("VALOR S/.", 112 + 12, tableY + 15, { angle: 90 });
 
-  const boxWidth = 35;
-  const boxHeight = 8;
-  const boxY = valueY + 2;
+  // Fila de datos
+  const dataY = tableY + 25;
+  doc.setFont("helvetica", "normal");
+  [
+    "", // CÓDIGO
+    "", // MATERIAL
+    "", // ESTADO DE CONSERVACIÓN
+    "0", // ANTIGÜEDAD
+    "", // DESCRIPCIÓN
+    "0.00", // METRADO
+    "0.00", // VALOR UNITARIOS
+    ["0.00", "0"], // VALOR DEPRECIADO [%, VALOR S/.]
+    "0.00", // VALOR DE OBRAS
+  ].forEach((value, i) => {
+    const col = cols[i];
+    if (Array.isArray(value)) {
+      // Para VALOR DEPRECIADO
+      doc.text(value[0], col.x + 2, dataY); // %
+      doc.text(value[1], col.x + 10, dataY); // VALOR S/.
+    } else {
+      doc.text(value, col.x + 2, dataY);
+    }
+  });
+
+  // Total
+  doc.line(112, tableY + 32, 143, tableY + 32);
+  doc.text("Total", 114, tableY + 31);
+  doc.text("0", 141, tableY + 31, { align: "right" });
+
+  // Value Determination Section
+  doc.setFontSize(7);
+  doc.setFont("helvetica", "bold");
+  doc.text("DETERMINACIÓN DEL VALOR DEL PREDIO (S/.)", 5, tableY + 38);
 
   if (puReportResult.length > 0) {
     const report = puReportResult[0];
+    const boxY2 = tableY + 39;
 
-    // Primera caja
-    doc.rect(10, boxY, boxWidth, boxHeight);
-    doc.setFontSize(ultraDenseFont);
-    doc.text("VALUO TOTAL DEL PREDIO (VT\n+VC + VOI +VAC)", 11, boxY + 3);
-    doc.setFontSize(denseFont);
-    doc.text(Number(report.n0500valuototal || 0).toFixed(2), 20, boxY + 6);
+    // First Box
+    doc.rect(5, boxY2, 40, 15);
+    doc.setFontSize(4.5);
+    doc.text("VALUO TOTAL DEL PREDIO (VT\n+VC + VOI +VAC)", 7, boxY2 + 4);
+    doc.text((report.n0500valuototal || 0).toFixed(2), 43, boxY2 + 12, {
+      align: "right",
+    });
 
-    // X
-    doc.setFontSize(8);
-    doc.text("X", 50, boxY + 5);
+    // X symbol
+    doc.setFontSize(12);
+    doc.text("X", 47, boxY2 + 8);
 
-    // Segunda caja
-    doc.rect(60, boxY, boxWidth, boxHeight);
-    doc.setFontSize(ultraDenseFont);
-    doc.text("% PROPIEDAD", 70, boxY + 3);
-    doc.setFontSize(denseFont);
-    doc.text(`${Number(report.n0500porctit || 0).toFixed(4)}%`, 70, boxY + 6);
+    // Second Box
+    doc.rect(55, boxY2, 40, 15);
+    doc.setFontSize(4.5);
+    doc.text("% PROPIEDAD", 57, boxY2 + 4);
+    doc.text(`${(report.n0500porctit || 0).toFixed(3)}%`, 93, boxY2 + 12, {
+      align: "right",
+    });
 
-    // =
-    doc.setFontSize(8);
-    doc.text("=", 100, boxY + 5);
+    // = symbol
+    doc.setFontSize(12);
+    doc.text("=", 97, boxY2 + 8);
 
-    // Tercera caja
-    doc.rect(110, boxY, boxWidth, boxHeight);
-    doc.setFontSize(ultraDenseFont);
-    doc.text("VALUO DEL PREDIO AFECTO", 111, boxY + 3);
-    doc.setFontSize(denseFont);
+    // Third Box
+    doc.rect(105, boxY2, 40, 15);
+    doc.setFontSize(4.5);
+    doc.text("VALUO DEL PREDIO AFECTO", 107, boxY2 + 4);
     const valorAfecto =
       (report.n0500valuototal || 0) * ((report.n0500porctit || 0) / 100);
-    doc.text(Number(valorAfecto).toFixed(2), 120, boxY + 6);
+    doc.text(valorAfecto.toFixed(2), 143, boxY2 + 12, { align: "right" });
   }
 
-  // Número de serie
+  // Serial number
   doc.setFontSize(8);
-  doc.text("043198", 120, boxY + 12);
+  doc.text("043198", 132, boxY + 147);
 
   return doc;
 }

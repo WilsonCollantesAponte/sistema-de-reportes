@@ -67,25 +67,25 @@ interface DeterminacionArbitrioDomicilioFiscalTitularDam {
   ubicacion: string;
 }
 
-// interface DeterminacionArbitrioUbicacionPredioDam {
-//   c0500numpu: string;
-//   c0500codcont: string;
-//   ubicacion: string;
-// }
+interface DeterminacionArbitrioUbicacionPredioDam {
+  c0500numpu: string;
+  c0500codcont: string;
+  ubicacion: string;
+}
 
-// interface DeterminacionArbitrioUsosPrediosDam {
-//   desc_uso_catastro: string;
-//   desc_uso_arbitrio: string;
-//   area_uso_arbitrio: number;
-// }
+interface DeterminacionArbitrioUsosPrediosDam {
+  desc_uso_catastro: string;
+  desc_uso_arbitrio: string;
+  area_uso_arbitrio: number;
+}
 
 export function generateDAM(
   dam_masivo_reporte: DamMasivoReporte[],
   determinacionarbitriosmunicipal: DeterminacionArbitriosMunicipal[],
   determinacionarbitriotitularreporte: DeterminacionArbitrioTitularReporte[],
-  determinacionarbitriodomiciliofiscaltitulardam: DeterminacionArbitrioDomicilioFiscalTitularDam[]
-  // determinacionarbitrioubicacionprediodam: DeterminacionArbitrioUbicacionPredioDam[],
-  // determinacionarbitriousosprediosdam: DeterminacionArbitrioUsosPrediosDam[]
+  determinacionarbitriodomiciliofiscaltitulardam: DeterminacionArbitrioDomicilioFiscalTitularDam[],
+  determinacionarbitrioubicacionprediodam: DeterminacionArbitrioUbicacionPredioDam[],
+  determinacionarbitriousosprediosdam: DeterminacionArbitrioUsosPrediosDam[]
 ) {
   const doc = new jsPDF({
     format: "a5",
@@ -168,7 +168,12 @@ export function generateDAM(
     41
   );
   doc.text("FECHA DE EMISIÓN:", ndX + 2, 48);
-  doc.text("25/01/2025", ndX + 25, 48);
+  doc.text(
+    determinacionarbitriosmunicipal[0]?.d0500fecha_bd?.toLocaleDateString() ??
+      "",
+    ndX + 25,
+    48
+  );
 
   // Datos del contribuyente - comprimido horizontalmente
   doc.rect(marginLeft, 51, contentWidth, 22);
@@ -228,12 +233,18 @@ export function generateDAM(
   doc.setFontSize(smallSize);
   doc.text("UBICACIÓN DEL PREDIO", marginLeft + 2, predioY + 11);
   doc.text(
-    "URB. LA RINCONADA DE PIURA II SUB ETAPA B CALLE D Num. S/N Mz. 2D Lote 30",
+    determinacionarbitrioubicacionprediodam[0]?.ubicacion ?? "",
     marginLeft + 2,
     predioY + 16
   );
 
   doc.text("ÁREA CONSTRUIDA", marginLeft + ubicacionWidth + 2, predioY + 11);
+  doc.text(
+    determinacionarbitriosmunicipal[0]?.n0506areaconstruida_bd?.toString() ??
+      "0",
+    marginLeft + ubicacionWidth + 2,
+    predioY + 16
+  );
 
   // Segunda sección: Uso, Categoría y Área Uso
   const usoWidth = tableWidth * 0.4;
@@ -250,21 +261,34 @@ export function generateDAM(
   );
 
   doc.text("USO PRINCIPAL DEL PREDIO", marginLeft + 2, predioY + 24);
-  doc.text("SIN CONSTRUIR", marginLeft + 2, predioY + 29);
+  doc.text(
+    determinacionarbitriousosprediosdam[0]?.desc_uso_catastro ?? "",
+    marginLeft + 2,
+    predioY + 29
+  );
 
   doc.text(
     "CATEGORIA DE USO PARA ARBITRIOS",
     marginLeft + usoWidth + 2,
     predioY + 24
   );
-  doc.text("TERRENO SIN CONSTRUIR", marginLeft + usoWidth + 2, predioY + 29);
+  doc.text(
+    determinacionarbitriousosprediosdam[0]?.desc_uso_arbitrio ?? "",
+    marginLeft + usoWidth + 2,
+    predioY + 29
+  );
 
   doc.text(
     "AREA USO",
     marginLeft + usoWidth + categoriaWidth + 2,
     predioY + 24
   );
-  doc.text("0.00", marginLeft + usoWidth + categoriaWidth + 2, predioY + 29);
+  doc.text(
+    determinacionarbitriousosprediosdam[0]?.area_uso_arbitrio?.toString() ??
+      "0",
+    marginLeft + usoWidth + categoriaWidth + 2,
+    predioY + 29
+  );
 
   // Tercera sección: Tablas de datos
   const dataY = predioY + 33;
@@ -299,24 +323,42 @@ export function generateDAM(
 
   // Textos de recolección
   doc.text("TASA RECOLECC.", recoleccionX, subRecoleccionY + 3);
-  doc.text("0.00000", recoleccionX + 2, subRecoleccionY + 6);
+  doc.text(
+    determinacionarbitriosmunicipal[0]?.n0506factusorecolec_bd?.toString() ??
+      "0",
+    recoleccionX + 2,
+    subRecoleccionY + 6
+  );
 
   doc.text("AREA CONST. (m2)", recoleccionX + colWidth, subRecoleccionY + 3);
-  doc.text("0.00", recoleccionX + colWidth + 2, subRecoleccionY + 6);
+  doc.text(
+    determinacionarbitriosmunicipal[0]?.n0506areaconstruida_bd?.toString() ??
+      "0",
+    recoleccionX + colWidth + 2,
+    subRecoleccionY + 6
+  );
 
   doc.text(
     "CALC. ANUAL S/",
     recoleccionX + colWidth * 2 + 1,
     subRecoleccionY + 3
   );
-  doc.text("", recoleccionX + colWidth * 2 + 2, subRecoleccionY + 6);
+  doc.text(
+    determinacionarbitriosmunicipal[0]?.n0506recojo_bd?.toString() ?? "0",
+    recoleccionX + colWidth * 2 + 2,
+    subRecoleccionY + 6
+  );
 
   doc.text(
     "ARBITRIO CALC. S/",
     recoleccionX + colWidth * 3 + 0.5,
     subRecoleccionY + 3
   );
-  doc.text("0.00", recoleccionX + colWidth * 3 + 2, subRecoleccionY + 6);
+  doc.text(
+    determinacionarbitriosmunicipal[0]?.n0506recojo_bd?.toString() ?? "0",
+    recoleccionX + colWidth * 3 + 2,
+    subRecoleccionY + 6
+  );
 
   // Tabla Barrido con subdivisiones exactas
   const barridoX = recoleccionX + recoleccionWidth;
@@ -334,27 +376,48 @@ export function generateDAM(
 
   // Textos de barrido
   doc.text("TASA BARRIDO", barridoX + 2, subRecoleccionY + 3);
-  doc.text("0.00", barridoX + 3, subRecoleccionY + 6);
+  doc.text(
+    determinacionarbitriosmunicipal[0]?.n0506factusobarrido_bd?.toString() ??
+      "0",
+    barridoX + 3,
+    subRecoleccionY + 6
+  );
 
   doc.text("FRONTIS (m)", barridoX + colWidth + 2, subRecoleccionY + 3);
-  doc.text("9.49", barridoX + colWidth + 2, subRecoleccionY + 6);
+  doc.text(
+    determinacionarbitriosmunicipal[0]?.n0506frontis_bd?.toString() ?? "0",
+    barridoX + colWidth + 2,
+    subRecoleccionY + 6
+  );
 
   doc.text("CALC. ANUAL S/", barridoX + colWidth * 2 + 1, subRecoleccionY + 3);
-  doc.text("", barridoX + colWidth * 2 + 2, subRecoleccionY + 6);
+  doc.text(
+    determinacionarbitriosmunicipal[0]?.n0506barrido_bd?.toString() ?? "0",
+    barridoX + colWidth * 2 + 2,
+    subRecoleccionY + 6
+  );
 
   doc.text(
     "ARBITRIO CALC. S/",
     barridoX + colWidth * 3 + 0.5,
     subRecoleccionY + 3
   );
-  doc.text("0.00", barridoX + colWidth * 3 + 2, subRecoleccionY + 6);
+  doc.text(
+    determinacionarbitriosmunicipal[0]?.n0506barrido_bd?.toString() ?? "0",
+    barridoX + colWidth * 3 + 2,
+    subRecoleccionY + 6
+  );
 
   // Columna Arbitrio final
   const arbitrioX = barridoX + barridoWidth;
   doc.rect(arbitrioX, dataY, arbitrioWidth * 0.6, 22);
   doc.text("ARBITRIO", arbitrioX + 2, dataY + 3);
   doc.text("ANUAL S/", arbitrioX + 2, dataY + 5);
-  doc.text("0.0", arbitrioX + 2, dataY + 8);
+  doc.text(
+    determinacionarbitriosmunicipal[0]?.n0506limpieza_bd?.toString() ?? "0",
+    arbitrioX + 2,
+    dataY + 8
+  );
 
   // Última fila: Parques y áreas verdes con divisiones exactas
   const parqueY = dataY + 11;
@@ -376,13 +439,22 @@ export function generateDAM(
   // Tasa parques
   doc.rect(barridoX, parqueY, finalSectionWidth * 2, 11);
   doc.text("TASA PARQUES", barridoX + 2, parqueY + 4);
-  doc.text("56.09", barridoX + 2, parqueY + 8);
+  doc.text(
+    determinacionarbitriosmunicipal[0]?.n0506factorposgeogparques_bd?.toString() ??
+      "0",
+    barridoX + 2,
+    parqueY + 8
+  );
 
   // Arbitrio anual
   doc.rect(barridoX + finalSectionWidth * 2, parqueY, finalSectionWidth, 11);
   doc.text("ARBITRIO", barridoX + finalSectionWidth * 2 + 2, parqueY + 4);
   doc.text("ANUAL S/", barridoX + finalSectionWidth * 2 + 2, parqueY + 6);
-  doc.text("0.0", barridoX + finalSectionWidth * 2 + 2, parqueY + 8);
+  doc.text(
+    determinacionarbitriosmunicipal[0]?.n0506areasverdes_bd?.toString() ?? "0",
+    barridoX + finalSectionWidth * 2 + 2,
+    parqueY + 8
+  );
 
   // Serenazgo (texto vertical)
   doc.rect(barridoX + finalSectionWidth * 3, parqueY, finalSectionWidth, 11);
@@ -398,13 +470,22 @@ export function generateDAM(
   // Tasa
   doc.rect(barridoX + finalSectionWidth * 5, parqueY, finalSectionWidth, 11);
   doc.text("TASA", barridoX + finalSectionWidth * 5 + 2, parqueY + 4);
-  doc.text("47.40000", barridoX + finalSectionWidth * 5 + 2, parqueY + 8);
+  doc.text(
+    determinacionarbitriosmunicipal[0]?.n0506factorusoseren_bd?.toString() ??
+      "0",
+    barridoX + finalSectionWidth * 5 + 2,
+    parqueY + 8
+  );
 
   // Arbitrio final
   doc.rect(arbitrioX, parqueY, arbitrioWidth * 0.6, 11);
   doc.text("ARBITRIO", arbitrioX + 2, parqueY + 4);
   doc.text("ANUAL S/", arbitrioX + 2, parqueY + 6);
-  doc.text("7.2", arbitrioX + 2, parqueY + 9);
+  doc.text(
+    determinacionarbitriosmunicipal[0]?.n0506serenazgo_bd?.toString() ?? "0",
+    arbitrioX + 2,
+    parqueY + 9
+  );
 
   // Liquidación anual
   const finalY = dataY + 28;
@@ -430,7 +511,7 @@ export function generateDAM(
   doc.setFontSize(9);
   doc.text(
     determinacionarbitriosmunicipal[0]?.n0506arbitriototal_bd?.toString() ??
-      "7.20",
+      "0",
     startBoxX + boxWidthLiq / 2,
     boxY + 12,
     { align: "center" }
@@ -452,8 +533,7 @@ export function generateDAM(
   doc.text("EMISIÓN S/", middleBoxX + 2, boxY + 8);
   doc.setFontSize(9);
   doc.text(
-    determinacionarbitriosmunicipal[0]?.n0506gastoformato_bd?.toString() ??
-      "7.90",
+    determinacionarbitriosmunicipal[0]?.n0506gastoformato_bd?.toString() ?? "0",
     middleBoxX + boxWidthLiq / 2,
     boxY + 12,
     { align: "center" }
@@ -478,7 +558,7 @@ export function generateDAM(
   doc.setFontSize(9);
   doc.text(
     determinacionarbitriosmunicipal[0]?.n0506arbitrioredondtotal_bd?.toString() ??
-      "15.10",
+      "0",
     endBoxX + boxWidthLiq / 2,
     boxY + 12,
     { align: "center" }
@@ -500,9 +580,16 @@ export function generateDAM(
   for (let i = 1; i <= 6; i++) {
     doc.rect(currentX, currentY, cuotaWidth, cuotaHeight);
     doc.text(`${i}° CUOTA`, currentX + 2, currentY + 4);
-    doc.text("0.60", currentX + 2, currentY + 8);
+    const cuotaValue =
+      Number(
+        determinacionarbitriosmunicipal[0]?.n0506arbitrioredondtotal_bd ?? 0
+      ) / 12;
+    doc.text(cuotaValue.toFixed(2), currentX + 2, currentY + 8);
     if (i === 1) {
-      doc.text("8.50", currentX + 2, currentY + 8); // Primera cuota diferente
+      const firstCuotaValue =
+        cuotaValue +
+        Number(determinacionarbitriosmunicipal[0]?.n0506gastoformato_bd ?? 0);
+      doc.text(firstCuotaValue.toFixed(2), currentX + 2, currentY + 8);
     }
     currentX += cuotaWidth;
   }
@@ -513,7 +600,11 @@ export function generateDAM(
   for (let i = 7; i <= 12; i++) {
     doc.rect(currentX, currentY, cuotaWidth, cuotaHeight);
     doc.text(`${i}° CUOTA`, currentX + 2, currentY + 4);
-    doc.text("0.60", currentX + 2, currentY + 8);
+    const cuotaValue =
+      Number(
+        determinacionarbitriosmunicipal[0]?.n0506arbitrioredondtotal_bd ?? 0
+      ) / 12;
+    doc.text(cuotaValue.toFixed(2), currentX + 2, currentY + 8);
     currentX += cuotaWidth;
   }
 
@@ -521,14 +612,12 @@ export function generateDAM(
   doc.setFontSize(normalSize);
   doc.text("043198", contentWidth - 10, currentY + 15);
 
-  if (determinacionarbitriosmunicipal[0]?.msjpie_bd) {
-    doc.setFontSize(smallSize);
-    doc.text(
-      determinacionarbitriosmunicipal[0].msjpie_bd ?? "",
-      marginLeft,
-      currentY + 15
-    );
-  }
+  doc.setFontSize(smallSize);
+  doc.text(
+    determinacionarbitriosmunicipal[0]?.msjpie_bd ?? "",
+    marginLeft,
+    currentY + 15
+  );
 
   return doc;
 }

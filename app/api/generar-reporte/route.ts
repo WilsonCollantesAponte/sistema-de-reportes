@@ -1,4 +1,5 @@
 import prisma from "@/db";
+import { generateCARTA } from "@/lib/reports/carta";
 import { generateCDN } from "@/lib/reports/cdn";
 import { generateDAM } from "@/lib/reports/dam";
 import { generateHR } from "@/lib/reports/hr";
@@ -12,6 +13,11 @@ export async function POST(request: Request) {
   try {
     const { codContribuyente, year, starWithLetter } = await request.json();
     const searchText = `${codContribuyente}|${year}`;
+
+    const logo: { fncobtenerparametrosimagenparam: Uint8Array }[] =
+      await prisma.$queryRaw`
+      select * from fncobtenerparametrosimagenparam('4','0') LIMIT 1
+    `;
 
     if (starWithLetter) {
       const result: Array<{
@@ -28,7 +34,8 @@ export async function POST(request: Request) {
       for (const item of result) {
         const mergedPdfBytes = await createMergedPDF_paraUnContribudor(
           item.c0001codpersona,
-          item.c0505anio
+          item.c0505anio,
+          logo[0].fncobtenerparametrosimagenparam
         );
 
         // Aquí puedes hacer algo con cada PDF generado, como guardarlo en el sistema de archivos o enviarlo a otro servicio
@@ -57,7 +64,8 @@ export async function POST(request: Request) {
 
     const mergedPdfBytes = await createMergedPDF_paraUnContribudor(
       codContribuyente,
-      year
+      year,
+      logo[0].fncobtenerparametrosimagenparam
     );
 
     // Devolver el PDF fusionado como respuesta
@@ -75,7 +83,8 @@ export async function POST(request: Request) {
 
 async function createMergedPDF_paraUnContribudor(
   codContribuyente: string,
-  year: string
+  year: string,
+  logo: Uint8Array
 ) {
   const searchText = `${codContribuyente}|${year}`;
 
@@ -92,8 +101,11 @@ async function createMergedPDF_paraUnContribudor(
   // `;
   // console.log({ cartaResult });
 
-  const doc = generateCDN(portadaNotificacionResult);
+  const doc = generateCDN(portadaNotificacionResult, logo);
   pdfDocuments.push(doc); // Agregar el primer documento al array
+
+  const carta = generateCARTA(portadaNotificacionResult, logo);
+  pdfDocuments.push(carta);
 
   // HR -------------------------------------
   const hrResult: Array<{ numhr: string; codcont: string }> =
@@ -292,20 +304,24 @@ async function createMergedPDF_paraUnContribudor(
         select * from fncobtenerdomiciliofiscalcadena(${codContribuyente})
       `;
 
-    const hraPrediosResult: Array<{
-      c0500id_uni_cat: string;
-      ubicacion: string;
-      n0500porctit: number;
-      limpiezaredond: number;
-      areasverdesredond: number;
-      serenazgoredond: number;
-      gastoemision: number;
-    }> = await prisma.$queryRaw`
+    const hraPrediosResult:
+      | Array<{
+          c0500id_uni_cat: string;
+          ubicacion: string;
+          n0500porctit: number;
+          limpiezaredond: number;
+          areasverdesredond: number;
+          serenazgoredond: number;
+          gastoemision: number;
+        }>
+      // eslint-disable-next-line
+      | any = await prisma.$queryRaw`
         select * from fncobtenerdeterminacionarbitriospdhojaresumen(${numhra})
       `;
 
     const totalArbitriosMunicipales = hraPrediosResult.reduce(
-      (total, predio) => {
+      // eslint-disable-next-line
+      (total: any, predio: any) => {
         return (
           total +
           Number(predio.limpiezaredond) +
@@ -363,7 +379,7 @@ async function createMergedPDF_paraUnContribudor(
     console.log({ determinacionarbitriosmunicipal });
 
     // eslint-disable-next-line
-    const determinacionarbitriotitularreporte: any = await prisma.$queryRaw`    
+    const determinacionarbitriotitularreporte: any = await prisma.$queryRaw`
     select * from fncobtenerdeterminacionarbitriotitularreporte(${numdam})
     `;
     console.log({ determinacionarbitriotitularreporte });
@@ -391,9 +407,9 @@ async function createMergedPDF_paraUnContribudor(
       dam_masivo_reporte,
       determinacionarbitriosmunicipal,
       determinacionarbitriotitularreporte,
-      determinacionarbitriodomiciliofiscaltitulardam
-      // determinacionarbitrioubicacionprediodam,
-      // determinacionarbitriousosprediosdam
+      determinacionarbitriodomiciliofiscaltitulardam,
+      determinacionarbitrioubicacionprediodam,
+      determinacionarbitriousosprediosdam
     );
 
     pdfDocuments.push(dam); // Agregar el documento DAM al array

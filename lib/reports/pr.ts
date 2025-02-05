@@ -1,13 +1,9 @@
 import { jsPDF } from "jspdf";
 
-// Interfaces se mantienen sin cambios
-
-// Assuming PRResult is an interface or type, you'll need to import it or define it here.
-// For example:
-// import { PRResult } from './your-file';  // Replace './your-file' with the actual path
+// Interfaces remain unchanged
 interface PRResult {
   codcont: string;
-  // Add other properties as needed
+  // ... other properties
 }
 
 interface PRReportResult {
@@ -116,7 +112,7 @@ export function generatePR(
 
   doc.text("UNIDAD CATASTRAL", leftMargin + boxWidth + 2, 39);
   doc.text(
-    (prReportResult[0]?.c0508id_uni_cat_bd ?? "").trim(),
+    prReportResult[0]?.c0508id_uni_cat_bd ?? "",
     leftMargin + boxWidth + 2,
     43
   );
@@ -196,9 +192,9 @@ export function generatePR(
   xPos = leftMargin;
   [
     prDatosPredioResult[0]?.situacion ?? "",
-    (prDatosPredioResult[0]?.tipoedifica ?? "").trim(),
+    prDatosPredioResult[0]?.tipoedifica ?? "",
     prDatosPredioResult[0]?.uso ?? "",
-    (prDatosPredioResult[0]?.condicion ?? "").trim(),
+    prDatosPredioResult[0]?.condicion ?? "",
     (prDatosPredioResult[0]?.n0500areaterreno ?? "").toString(),
   ].forEach((value, i) => {
     doc.text(value, xPos + 1, tableY + 7, {
@@ -262,11 +258,11 @@ export function generatePR(
         (index + 1).toString(),
         item.grupotierra ?? "",
         item.codgategoria ?? "",
-        (item.valorunit ?? 0).toLocaleString("es-PE", {
+        Number(item.valorunit ?? 0).toLocaleString("es-PE", {
           minimumFractionDigits: 2,
         }),
-        (item.area ?? 0).toFixed(2),
-        (item.valorterreno ?? 0).toLocaleString("es-PE", {
+        Number(item.area ?? 0).toFixed(2),
+        Number(item.valorterreno ?? 0).toLocaleString("es-PE", {
           minimumFractionDigits: 2,
         }),
       ].forEach((cell, i) => {
@@ -343,14 +339,14 @@ export function generatePR(
         item.c0501numpiso ?? "",
         item.mepdesc ?? "",
         item.escdesc ?? "",
-        (item.ant ?? 0).toString(),
+        Number(item.ant ?? 0).toString(),
         item.categorias ?? "",
-        (item.valorunitario ?? 0).toFixed(2),
-        (item.incr ?? 0).toString(),
-        (item.depreciacion ?? 0).toFixed(2),
-        (item.valorunitdepreciado ?? 0).toFixed(2),
-        (item.areaconstruida ?? 0).toFixed(2),
-        (item.valorconstruccion ?? 0).toFixed(2),
+        Number(item.valorunitario ?? 0).toFixed(2),
+        item.incr ?? "",
+        Number(item.depreciacion ?? 0).toFixed(2),
+        Number(item.valorunitdepreciado ?? 0).toFixed(2),
+        Number(item.areaconstruida ?? 0).toFixed(2),
+        Number(item.valorconstruccion ?? 0).toFixed(2),
       ].forEach((cell, i) => {
         doc.text(cell, xPos + 1, constTableY + 13 + index * 4, {
           maxWidth: constColWidths[i] - 2,
@@ -434,9 +430,12 @@ export function generatePR(
   doc.text("VALOR DEL", leftMargin + 2, valueTableY + 8);
   doc.text("TERRENO", leftMargin + 2, valueTableY + 11);
   doc.text(
-    (prReportResult[0]?.n0508valorterreno_bd ?? 0).toLocaleString("es-PE", {
-      minimumFractionDigits: 2,
-    }),
+    Number(prReportResult[0]?.n0508valorterreno_bd ?? 0).toLocaleString(
+      "es-PE",
+      {
+        minimumFractionDigits: 2,
+      }
+    ),
     leftMargin + 2,
     valueTableY + 15
   );
@@ -446,9 +445,12 @@ export function generatePR(
   doc.text("VALOR", leftMargin + valueColWidth + 2, valueTableY + 8);
   doc.text("CONSTRUC.", leftMargin + valueColWidth + 2, valueTableY + 11);
   doc.text(
-    (prReportResult[0]?.n0508valorconstr_bd ?? 0).toLocaleString("es-PE", {
-      minimumFractionDigits: 2,
-    }),
+    Number(prReportResult[0]?.n0508valorconstr_bd ?? 0).toLocaleString(
+      "es-PE",
+      {
+        minimumFractionDigits: 2,
+      }
+    ),
     leftMargin + valueColWidth + 2,
     valueTableY + 15
   );
@@ -458,9 +460,12 @@ export function generatePR(
   doc.text("VALOR OTR", leftMargin + 2 * valueColWidth + 2, valueTableY + 8);
   doc.text("INSTAL.", leftMargin + 2 * valueColWidth + 2, valueTableY + 11);
   doc.text(
-    (prReportResult[0]?.n0508valorinstalac_bd ?? 0).toLocaleString("es-PE", {
-      minimumFractionDigits: 2,
-    }),
+    Number(prReportResult[0]?.n0508valorinstalac_bd ?? 0).toLocaleString(
+      "es-PE",
+      {
+        minimumFractionDigits: 2,
+      }
+    ),
     leftMargin + 2 * valueColWidth + 2,
     valueTableY + 15
   );
@@ -473,7 +478,7 @@ export function generatePR(
     valueTableY + 8
   );
   doc.text(
-    (prReportResult[0]?.n0508valuototal_bd ?? 0).toLocaleString("es-PE", {
+    Number(prReportResult[0]?.n0508valuototal_bd ?? 0).toLocaleString("es-PE", {
       minimumFractionDigits: 2,
     }),
     leftMargin + 3 * valueColWidth + 2,
