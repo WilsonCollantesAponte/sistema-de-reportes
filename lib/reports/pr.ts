@@ -62,13 +62,16 @@ export function generatePR(
   prUbicacionesResult: PRUbicacionesResult[],
   prDatosPredioResult: PRDatosPredioResult[],
   prGrupoTierraResult: PRGrupoTierraResult[],
-  prConstruccionesResult: PRConstruccionesResult[]
+  prConstruccionesResult: PRConstruccionesResult[],
+  logo: Uint8Array
 ) {
   // Initialize PDF in A5 format with reduced margins
   const doc = new jsPDF({
     format: "a5",
     unit: "mm",
   });
+
+  doc.addImage(logo, "JPEG", 15, 15, 20, 20);
 
   // Adjusted font sizes
   const titleFont = 10;

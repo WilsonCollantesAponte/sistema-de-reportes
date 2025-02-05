@@ -26,7 +26,7 @@ export async function POST(request: Request) {
         c0001idlugar: string;
         c0001codpersona: string;
       }> = await prisma.$queryRaw`
-      select * from fncobtenerpaqueteporlugar(${searchText},0,5000) limit 1
+      select * from fncobtenerpaqueteporlugar(${searchText},0,5000) limit 2
     `;
 
       const pdfs: Array<Uint8Array<ArrayBufferLike>> = [];
@@ -146,6 +146,7 @@ async function createMergedPDF_paraUnContribudor(
       domiciliosResult,
       prediosResult,
       footerResult,
+      logo,
     });
 
     pdfDocuments.push(hr); // Agregar el documento HR al array
@@ -198,7 +199,8 @@ async function createMergedPDF_paraUnContribudor(
       puUbicacionesResult,
       puDatosPredioResult,
       puConstruccionesResult,
-      puOtrasConstruccionesResult
+      puOtrasConstruccionesResult,
+      logo
     );
 
     pdfDocuments.push(pu); // Agregar el documento PU al array
@@ -256,7 +258,8 @@ async function createMergedPDF_paraUnContribudor(
       prUbicacionesResult,
       prDatosPredioResult,
       prGrupoTierraResult,
-      prConstruccionesResult
+      prConstruccionesResult,
+      logo
     );
 
     pdfDocuments.push(pr); // Agregar el documento PR al array
@@ -323,7 +326,8 @@ async function createMergedPDF_paraUnContribudor(
       hraTitularesResult,
       hraDomiciliosResult,
       hraPrediosResult,
-      { totalArbitriosMunicipales: String(totalArbitriosMunicipales) }
+      { totalArbitriosMunicipales: String(totalArbitriosMunicipales) },
+      logo
     );
 
     pdfDocuments.push(hra); // Agregar el documento HRA al array
@@ -376,7 +380,8 @@ async function createMergedPDF_paraUnContribudor(
       determinacionarbitriotitularreporte,
       determinacionarbitriodomiciliofiscaltitulardam,
       determinacionarbitrioubicacionprediodam,
-      determinacionarbitriousosprediosdam
+      determinacionarbitriousosprediosdam,
+      logo
     );
 
     pdfDocuments.push(dam); // Agregar el documento DAM al array

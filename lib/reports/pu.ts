@@ -65,12 +65,15 @@ export function generatePU(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   puConstruccionesResult: PUConstruccionesResult[] = [],
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  puOtrasConstruccionesResult: PUOtrasConstruccionesResult[] = []
+  puOtrasConstruccionesResult: PUOtrasConstruccionesResult[] = [],
+  logo: Uint8Array
 ): jsPDF {
   const doc = new jsPDF({
     format: "a5",
     unit: "mm",
   });
+
+  doc.addImage(logo, "JPEG", 15, 15, 20, 20);
 
   // Header Section
   doc.setFontSize(11);

@@ -85,12 +85,15 @@ export function generateDAM(
   determinacionarbitriotitularreporte: DeterminacionArbitrioTitularReporte[],
   determinacionarbitriodomiciliofiscaltitulardam: DeterminacionArbitrioDomicilioFiscalTitularDam[],
   determinacionarbitrioubicacionprediodam: DeterminacionArbitrioUbicacionPredioDam[],
-  determinacionarbitriousosprediosdam: DeterminacionArbitrioUsosPrediosDam[]
+  determinacionarbitriousosprediosdam: DeterminacionArbitrioUsosPrediosDam[],
+  logo: Uint8Array
 ) {
   const doc = new jsPDF({
     format: "a5",
     unit: "mm",
   });
+
+  doc.addImage(logo, "JPEG", 120, 15, 20, 20);
 
   // Ajustar tamaños de fuente para formato A5 más comprimido
   const titleSize = 9;

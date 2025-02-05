@@ -55,6 +55,7 @@ export interface GenerateHRParams {
   domiciliosResult: DomiciliosResult[];
   prediosResult: PrediosResult[];
   footerResult: FooterResult[];
+  logo: Uint8Array;
 }
 
 export const generateHR = ({
@@ -64,6 +65,7 @@ export const generateHR = ({
   domiciliosResult,
   prediosResult,
   footerResult,
+  logo,
 }: GenerateHRParams) => {
   const doc = new jsPDF({
     format: "a5",
@@ -71,9 +73,7 @@ export const generateHR = ({
   });
 
   // Add municipal logo
-  // const logoUrl =
-  //   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSbfLf7NwgfyVkd14s-e1L1k5eW04-2cAKwl-wCEl3gFDW1IVLobqve57qyw3nTkE_lcFI&usqp=CAU";
-  // doc.addImage(logoUrl, "PNG", 15, 15, 20, 20);
+  doc.addImage(logo, "JPEG", 15, 15, 20, 20);
 
   // Add municipality name
   doc.setFontSize(8);

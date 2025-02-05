@@ -64,12 +64,15 @@ export function generateHRA(
   hraTitularesResult: HraTitularesResult[],
   hraDomiciliosResult: HraDomiciliosResult[],
   hraPrediosResult: HraPrediosResult[],
-  totalArbitriosMunicipales: TotalArbitriosMunicipales
+  totalArbitriosMunicipales: TotalArbitriosMunicipales,
+  logo: Uint8Array
 ) {
   const doc = new jsPDF({
     format: "a5",
     unit: "mm",
   });
+
+  doc.addImage(logo, "JPEG", 12, 4, 20, 20);
 
   // Font sizes más pequeños
   const titleFont = 9;
@@ -81,7 +84,7 @@ export function generateHRA(
 
   // Header section - aún más compacto
   doc.setFontSize(titleFont);
-  doc.rect(margin, margin, 20, 15); // Logo más pequeño
+  // doc.rect(margin, margin, 20, 15);
 
   // Título principal más compacto
   doc.text("HOJA DE RESUMEN DETERMINACIÓN", pageWidth / 2, margin + 5, {
