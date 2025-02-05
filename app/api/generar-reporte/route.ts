@@ -11,8 +11,10 @@ import { PDFDocument } from "pdf-lib"; // Importar pdf-lib para fusionar pdf´s
 
 export async function POST(request: Request) {
   try {
-    const { codContribuyente, year, starWithLetter } = await request.json();
+    const { codContribuyente, year, starWithLetter, fin } =
+      await request.json();
     const searchText = `${codContribuyente}|${year}`;
+    const num_fin = Number(fin);
 
     const logo: { fncobtenerparametrosimagenparam: Uint8Array }[] =
       await prisma.$queryRaw`
@@ -26,7 +28,7 @@ export async function POST(request: Request) {
         c0001idlugar: string;
         c0001codpersona: string;
       }> = await prisma.$queryRaw`
-      select * from fncobtenerpaqueteporlugar(${searchText},0,5000) limit 2
+      select * from fncobtenerpaqueteporlugar(${searchText},0,5000) limit ${num_fin}
     `;
 
       const pdfs: Array<Uint8Array<ArrayBufferLike>> = [];

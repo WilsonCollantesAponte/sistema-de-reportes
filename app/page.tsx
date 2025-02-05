@@ -62,6 +62,7 @@ export default function ReportGenerator() {
   );
 
   const fetchContributors = async () => {
+    setBySearchResults([]);
     setIsLoading(true);
     try {
       const response = await fetch(
@@ -95,6 +96,7 @@ export default function ReportGenerator() {
           tipo,
           year,
           starWithLetter: !"0123456789".includes(lugarSearch[0]),
+          fin,
         }),
       });
 
@@ -261,6 +263,7 @@ export default function ReportGenerator() {
                           )
                             .then((response) => response.json())
                             .then((data) => {
+                              setContributors([]);
                               setBySearchResults(data);
                             })
                             .catch((error) => {
