@@ -560,8 +560,10 @@ export function generateDAM(
   doc.text("ANUAL S/", endBoxX + 2, boxY + 8);
   doc.setFontSize(9);
   doc.text(
-    determinacionarbitriosmunicipal[0]?.n0506arbitrioredondtotal_bd?.toString() ??
-      "0",
+    String(
+      Number(determinacionarbitriosmunicipal[0]?.n0506arbitriototal_bd) +
+        Number(determinacionarbitriosmunicipal[0]?.n0506gastoformato_bd)
+    ) ?? "0",
     endBoxX + boxWidthLiq / 2,
     boxY + 12,
     { align: "center" }
