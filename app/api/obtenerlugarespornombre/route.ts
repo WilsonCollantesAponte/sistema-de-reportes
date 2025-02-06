@@ -13,7 +13,7 @@ export async function GET(request: Request) {
        SELECT * FROM fncobtenerlugarespornombre_hr(${id_lugar},${nombre_lugar},${year})
     `;
 
-    console.log({ result });
+    // console.log({ result });
 
     return Response.json(result);
   } catch (error) {
