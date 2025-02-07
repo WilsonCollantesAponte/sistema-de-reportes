@@ -180,6 +180,7 @@ export function generateDAM(
 
   // Datos del contribuyente - comprimido horizontalmente
   doc.rect(marginLeft, 51, contentWidth, 22);
+  doc.rect(marginLeft, 56, contentWidth, 0);
   doc.setFontSize(normalSize);
   doc.text("DATOS DEL CONTRIBUYENTE", marginLeft + 2, 55);
 

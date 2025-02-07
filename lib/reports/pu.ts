@@ -150,24 +150,25 @@ export function generatePU(
 
   // Taxpayer box
   doc.rect(5, contribuyenteY + 2, 138, 8);
+  doc.rect(5, contribuyenteY + 5.4, 138, 0);
   doc.setFontSize(5);
-  doc.text("APELLIDOS Y NOMBRES / RAZÓN SOCIAL", 7, contribuyenteY + 5);
-  doc.text("DNI / CIP / RUC", 95, contribuyenteY + 5);
-  doc.text("CÓDIGO", 120, contribuyenteY + 5);
+  doc.text("APELLIDOS Y NOMBRES / RAZÓN SOCIAL", 7, contribuyenteY + 4.5);
+  doc.text("DNI / CIP / RUC", 95, contribuyenteY + 4.5);
+  doc.text("CÓDIGO", 120, contribuyenteY + 4.5);
 
   if (puTitularesResult.length > 0) {
     doc.setFont("helvetica", "normal");
     doc.text(
       puTitularesResult[0].nombre_bd?.trim() || "",
       7,
-      contribuyenteY + 7
+      contribuyenteY + 8
     );
     doc.text(
       puTitularesResult[0].numero_bd?.trim() || "",
       95,
-      contribuyenteY + 7
+      contribuyenteY + 8
     );
-    doc.text(puTitularesResult[0].id_persona_bd || "", 120, contribuyenteY + 7);
+    doc.text(puTitularesResult[0].id_persona_bd || "", 120, contribuyenteY + 8);
   }
 
   // Adjust the following datosY to account for the new section
