@@ -94,20 +94,10 @@ export function generatePU(
   doc.text("Capullanas - Veintiseis de Octubre", 5, 44);
   doc.text("RUC:20529997401", 5, 48);
 
-  // Page info - Ajustado
-  doc.text("Pag 1 de 1", 120, 32);
-  if (puResult.length > 0) {
-    doc.text(`N° DE REFERENCIA: ${puResult[0].numpu || ""}`, 110, 36);
-    if (puReportResult.length > 0) {
-      const fecha = new Date(puReportResult[0].fecha || "");
-      doc.text(`FECHA DE EMISIÓN: ${fecha.toLocaleDateString()}`, 110, 40);
-    }
-  }
-
   // Starting position for content
   const boxY = 52;
 
-  // Fiscal Year and Cadastral Unit boxes - Más espacio
+  // Fiscal Year box
   doc.rect(5, boxY, 45, 10);
   doc.setFontSize(6);
   doc.setFont("helvetica", "bold");
@@ -120,15 +110,36 @@ export function generatePU(
     });
   }
 
-  doc.rect(55, boxY, 88, 10);
+  // Main cadastral unit box - Reduced width
+  doc.rect(55, boxY, 44, 10);
   doc.setFont("helvetica", "bold");
-  doc.text("UNIDAD CATASTRAL", 99, boxY + 4, { align: "center" });
+  doc.text("UNIDAD CATASTRAL", 77, boxY + 4, { align: "center" });
 
   if (puReportResult.length > 0) {
     doc.setFont("helvetica", "normal");
-    doc.text(puReportResult[0].c0500id_uni_cat || "", 99, boxY + 8, {
+    doc.text(puReportResult[0].c0500id_uni_cat || "", 77, boxY + 8, {
       align: "center",
     });
+  }
+
+  // Single container for page number, reference and date
+  doc.rect(102, boxY, 41, 10);
+  doc.setFontSize(5);
+  // Page number
+  // doc.text("Pag 1 de 1", 104, boxY + 3);
+
+  doc.setFontSize(7);
+  doc.text("Pag 1 de 1", 122, 36);
+  doc.setFontSize(5);
+
+  // Reference number
+  if (puResult.length > 0) {
+    doc.text(`N° DE REFERENCIA: ${puResult[0].numpu || ""}`, 104, boxY + 4);
+  }
+  // Date
+  if (puReportResult.length > 0) {
+    const fecha = new Date(puReportResult[0].fecha || "");
+    doc.text(`FECHA DE EMISIÓN: ${fecha.toLocaleDateString()}`, 104, boxY + 7);
   }
 
   // Taxpayer Data Section
